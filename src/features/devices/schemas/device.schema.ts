@@ -76,3 +76,24 @@ export const deviceDetailSchema = z.object({
   hasAlarms: z.boolean(),
 });
 export type DeviceDetail = z.infer<typeof deviceDetailSchema>;
+
+/** Editable device configuration (screen 09). */
+export const deviceConfigSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  model: z.string(),
+  mac: z.string(),
+  status: deviceStatusSchema,
+  tempTarget: z.number(),
+  tempMin: z.number(),
+  tempMax: z.number(),
+  humidityTarget: z.number(),
+  humidityMin: z.number(),
+  humidityMax: z.number(),
+  blowerAuto: z.boolean(),
+  readingInterval: z.string(),
+  dryingPhase: z.string(),
+  wifi: z.string(),
+  ip: z.string(),
+});
+export type DeviceConfig = z.infer<typeof deviceConfigSchema>;

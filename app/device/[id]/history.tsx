@@ -1,5 +1,1 @@
-import { ComingSoon } from '@/shared/components/ComingSoon';
-
-export default function DeviceHistoryRoute() {
-  return <ComingSoon title="Histórico" />;
-}
+export { DeviceHistoryScreen as default } from '@/features/reports/screens/DeviceHistoryScreen';

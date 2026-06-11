@@ -1,8 +1,10 @@
 import { delay } from '@/utils/async.util';
 
 import {
+  deviceConfigSchema,
   deviceDetailSchema,
   deviceGroupSchema,
+  type DeviceConfig,
   type DeviceDetail,
   type DeviceGroup,
 } from '../schemas/device.schema';
@@ -155,5 +157,30 @@ export const deviceService = {
         }
       : DETAIL_BASE;
     return deviceDetailSchema.parse(merged);
+  },
+
+  async getDeviceConfig(id: string): Promise<DeviceConfig> {
+    await delay(300);
+    const item = GROUPS_FIXTURE.flatMap((g) => g.devices).find(
+      (d) => d.id === id,
+    );
+    return deviceConfigSchema.parse({
+      id: item?.id ?? DETAIL_BASE.id,
+      name: item?.name ?? DETAIL_BASE.name,
+      model: item?.model ?? DETAIL_BASE.model,
+      mac: item?.mac ?? DETAIL_BASE.mac,
+      status: item?.status ?? DETAIL_BASE.status,
+      tempTarget: 80,
+      tempMin: 0,
+      tempMax: 150,
+      humidityTarget: 70,
+      humidityMin: 0,
+      humidityMax: 100,
+      blowerAuto: true,
+      readingInterval: '30 min',
+      dryingPhase: 'Amarelação',
+      wifi: 'BE1‑Campo',
+      ip: '192.168.0.42',
+    });
   },
 };

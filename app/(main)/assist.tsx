@@ -1,5 +1,1 @@
-import { ComingSoon } from '@/shared/components/ComingSoon';
-
-export default function AssistRoute() {
-  return <ComingSoon title="Assistências" />;
-}
+export { SupportScreen as default } from '@/features/support/screens/SupportScreen';

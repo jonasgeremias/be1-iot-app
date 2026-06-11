@@ -19,5 +19,4 @@ React Native app (Expo Router + Tamagui, feature-based). **`docs/technical-spec.
 - Fonts: `$body` = Plus Jakarta Sans, `$mono` = JetBrains Mono (telemetry/MAC/timestamps).
 
 ## Status
-Built: auth (splash/login/forgot), dashboard, devices list + real-time detail.
-Pending (`ComingSoon` placeholders): Perfil (06), Assistências (08 → `support` feature), device Configuração (09), device Histórico/reports (07).
+All 10 prototype screens built: auth (splash/login/forgot), dashboard, devices list + real-time detail, Perfil (`profile`), Assistências (`support`), device Configuração (`devices`), device Histórico (`reports`). Features: auth, dashboard, devices, profile, support, reports.
