@@ -33,6 +33,7 @@ export type ProfileUser = {
   cityId?: string | null;
   cityRelation?: {
     name?: string | null;
+    stateId?: string | null;
     state?: { name?: string | null; uf?: string | null } | null;
   } | null;
   roles?: { name: string }[] | null;
@@ -44,4 +45,5 @@ export type ProfileUpdateInput = {
   phone?: string;
   cpf?: string;
   birthdate?: string;
+  cityId?: string;
 };

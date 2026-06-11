@@ -17,6 +17,7 @@ export function useLogout() {
       storage.remove(StorageKeys.authToken),
       storage.remove(StorageKeys.refreshToken),
       storage.remove(StorageKeys.userId),
+      storage.remove(StorageKeys.userName),
     ]);
     queryClient.clear();
     signOut();

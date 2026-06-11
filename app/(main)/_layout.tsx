@@ -1,13 +1,21 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 
 import { MainTabBar } from '@/shared/components/MainTabBar';
+import { useAuthStore } from '@/store/auth.store';
 
 export const unstable_settings = {
   initialRouteName: 'index',
 };
 
-/** Main tab navigator — declares the four tabs from the prototype's `Nav`. */
+/** Main tab navigator — gated: an unauthenticated user is sent to login. */
 export default function MainLayout() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
+
+  // Wait for the session check, then guard the whole tab group.
+  if (!bootstrapped) return null;
+  if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
+
   return (
     <Tabs
       tabBar={(props) => <MainTabBar {...props} />}

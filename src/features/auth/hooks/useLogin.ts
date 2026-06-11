@@ -20,6 +20,7 @@ export function useLogin() {
         storage.set(StorageKeys.authToken, session.token),
         storage.set(StorageKeys.refreshToken, session.refreshToken),
         storage.set(StorageKeys.userId, session.user.id),
+        storage.set(StorageKeys.userName, session.user.name ?? ''),
       ]);
       if (variables.remember) {
         await storage.set(StorageKeys.rememberEmail, variables.email);

@@ -1,30 +1,17 @@
-import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
 import { YStack } from 'tamagui';
 
 import { appConfig } from '@/config/app.config';
 import { BrandGradient } from '@/shared/ui/BrandGradient';
 import { MonoText } from '@/shared/ui/Text';
 
-import { useAuthBootstrap } from '../hooks/useAuthBootstrap';
 import { SplashLogo } from '../components/SplashLogo';
 
 /**
- * Animated splash (screen 00). Restores the session from storage, then routes
- * to the main app if it is still valid, otherwise to login.
+ * Branded splash visual (screen 00). Pure presentation — shown by the session
+ * gate while the stored session is being restored; routing is handled by the
+ * gate + route guards.
  */
 export function SplashScreen() {
-  const router = useRouter();
-  const { ready, authed } = useAuthBootstrap();
-
-  useEffect(() => {
-    if (!ready) return;
-    const id = setTimeout(() => {
-      router.replace(authed ? '/(main)' : '/(auth)/login');
-    }, 900);
-    return () => clearTimeout(id);
-  }, [ready, authed, router]);
-
   return (
     <BrandGradient
       from="brandGrad1"
@@ -37,13 +24,7 @@ export function SplashScreen() {
         <SplashLogo />
       </YStack>
       <YStack position="absolute" bottom={70} left={0} right={0} ai="center" gap="$15">
-        <YStack
-          width={150}
-          height={4}
-          br={2}
-          bg="$whiteA20"
-          overflow="hidden"
-        >
+        <YStack width={150} height={4} br={2} bg="$whiteA20" overflow="hidden">
           <YStack width="42%" height="100%" br={2} bg="$white" />
         </YStack>
         <MonoText color="$whiteA78" fontSize="$11" letterSpacing={1}>

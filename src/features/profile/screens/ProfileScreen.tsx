@@ -27,6 +27,7 @@ import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
+import { Select } from '@/shared/ui/Select';
 import { Separator } from '@/shared/ui/Separator';
 import { Switch } from '@/shared/ui/Switch';
 import { Text } from '@/shared/ui/Text';
@@ -41,6 +42,7 @@ import {
 import { useLogout } from '@/hooks/useLogout';
 
 import { ProfileHeader } from '../components/ProfileHeader';
+import { useLocations } from '../hooks/useLocations';
 import { useProfile } from '../hooks/useProfile';
 import { useUpdateAvatar } from '../hooks/useUpdateAvatar';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
@@ -68,6 +70,11 @@ export function ProfileScreen() {
   const [phone, setPhone] = useState('');
   const [cpf, setCpf] = useState('');
   const [birth, setBirth] = useState('');
+  const [stateId, setStateId] = useState<string | null>(null);
+  const [cityId, setCityId] = useState<string | null>(null);
+
+  const { statesOptions, citiesOptions, isStatesLoading, isCitiesLoading } =
+    useLocations(stateId);
 
   useEffect(() => {
     if (!data) return;
@@ -75,6 +82,8 @@ export function ProfileScreen() {
     setPhone(formatPhone(data.phone ?? ''));
     setCpf(formatCPF(data.cpf ?? ''));
     setBirth(formatDateBr(data.birthdate));
+    setStateId(data.cityRelation?.stateId ?? null);
+    setCityId(data.cityId ?? null);
   }, [data]);
 
   if (isError) {
@@ -130,6 +139,7 @@ export function ProfileScreen() {
     };
     const iso = brToIso(birth);
     if (iso) payload.birthdate = iso;
+    if (cityId) payload.cityId = cityId;
     await update.mutateAsync(payload);
     setEditing(false);
   };
@@ -140,6 +150,8 @@ export function ProfileScreen() {
     setPhone(formatPhone(data.phone ?? ''));
     setCpf(formatCPF(data.cpf ?? ''));
     setBirth(formatDateBr(data.birthdate));
+    setStateId(data.cityRelation?.stateId ?? null);
+    setCityId(data.cityId ?? null);
   };
 
   return (
@@ -224,11 +236,34 @@ export function ProfileScreen() {
                   placeholder="dd/mm/aaaa"
                 />
               </YStack>
-              {location ? (
-                <Text fontSize="$10.5" color="$text3">
-                  Localização: {location} · edição de estado/cidade em breve
-                </Text>
-              ) : null}
+              <YStack>
+                <Select
+                  label="Estado"
+                  accessibilityLabel="Estado"
+                  value={stateId}
+                  options={statesOptions}
+                  loading={isStatesLoading}
+                  placeholder="Selecione o estado"
+                  onChange={(v) => {
+                    setStateId(v);
+                    setCityId(null);
+                  }}
+                />
+              </YStack>
+              <YStack>
+                <Select
+                  label="Cidade"
+                  accessibilityLabel="Cidade"
+                  value={cityId}
+                  options={citiesOptions}
+                  loading={isCitiesLoading}
+                  disabled={!stateId}
+                  placeholder={
+                    stateId ? 'Selecione a cidade' : 'Selecione o estado primeiro'
+                  }
+                  onChange={(v) => setCityId(v)}
+                />
+              </YStack>
             </YStack>
           ) : (
             <>

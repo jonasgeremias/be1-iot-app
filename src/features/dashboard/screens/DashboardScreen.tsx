@@ -9,6 +9,9 @@ import { Screen } from '@/shared/layouts/Screen';
 import { Avatar } from '@/shared/ui/Avatar';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
+import { useCurrentUserName } from '@/hooks/useCurrentUserName';
+import { monogramOf } from '@/utils/format.util';
+import { getGreeting } from '@/utils/greeting.util';
 
 import { AccessCard } from '../components/AccessCard';
 import { HighlightSlide } from '../components/HighlightSlide';
@@ -20,6 +23,7 @@ export function DashboardScreen() {
   const router = useRouter();
   const summary = useDashboardSummary();
   const highlights = useHighlights();
+  const userName = useCurrentUserName();
 
   if (summary.isError || highlights.isError) {
     return (
@@ -43,17 +47,26 @@ export function DashboardScreen() {
   }
 
   const s = summary.data;
+  const displayName = userName?.trim() || s.accountName;
+  const greeting = getGreeting();
+  const monogram = userName?.trim() ? monogramOf(userName) : s.monogram;
 
   return (
     <Screen scroll tabBarSpacing>
       {/* Greeting header */}
       <XStack px="$18" pt="$4" pb="$12" ai="center" jc="space-between">
-        <YStack>
+        <YStack flex={1} pr="$10">
           <Text fontSize="$12" color="$text2" fontWeight="500">
-            {s.greeting}
+            {greeting}
           </Text>
-          <Text fontSize="$18" fontWeight="800" color="$text" letterSpacing={-0.3}>
-            {s.accountName}
+          <Text
+            fontSize="$18"
+            fontWeight="800"
+            color="$text"
+            letterSpacing={-0.3}
+            numberOfLines={1}
+          >
+            {displayName}
           </Text>
         </YStack>
         <XStack gap="$10" ai="center">
@@ -81,7 +94,7 @@ export function DashboardScreen() {
               </View>
             ) : null}
           </View>
-          <Avatar initials={s.monogram} size={42} radius={13} fontSize={14} />
+          <Avatar initials={monogram} size={42} radius={13} fontSize={14} />
         </XStack>
       </XStack>
 

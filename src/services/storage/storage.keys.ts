@@ -3,6 +3,7 @@ export const StorageKeys = {
   authToken: 'be1.auth.token',
   refreshToken: 'be1.auth.refreshToken',
   userId: 'be1.auth.userId',
+  userName: 'be1.auth.userName',
   themeMode: 'be1.theme.mode',
   rememberEmail: 'be1.auth.rememberEmail',
 } as const;

@@ -25,6 +25,11 @@ export const queryKeys = {
   profile: {
     me: ['profile', 'me'] as const,
   },
+  locations: {
+    countries: ['locations', 'countries'] as const,
+    states: (countryId: string) => ['locations', 'states', countryId] as const,
+    cities: (stateId: string) => ['locations', 'cities', stateId] as const,
+  },
   support: {
     info: ['support', 'info'] as const,
   },
