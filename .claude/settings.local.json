@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(npm install *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(npx expo *)",
+      "Bash(node -e \"const c=require\\('./expo-config.json'\\); console.log\\('name:',c.name\\); console.log\\('plugins:',JSON.stringify\\(c.plugins\\)\\);\")",
+      "Bash(rm -f expo-config.json expo-config.err install.log)",
+      "Bash(mkdir -p src/providers)",
+      "Bash(git mv *)",
+      "Bash(mv src/app/providers/AppProviders.tsx src/providers/AppProviders.tsx)",
+      "Bash(rmdir src/app/providers src/app)",
+      "Bash(rm -rf dist-check bundle-check.log)",
+      "Bash(grep -qiE \"Exported|error|Bundled|failed\" bundle-check.log)",
+      "Bash(break)",
+      "Bash(ls dist-check/_expo/static/js/ios/)"
+    ]
+  }
+}

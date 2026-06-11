@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "BE1 Monitoramento",
+    "slug": "be1-app",
+    "version": "1.28.0",
+    "orientation": "portrait",
+    "scheme": "be1app",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0B3C84",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.be1.app"
+    },
+    "android": {
+      "package": "br.com.be1.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B3C84"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
