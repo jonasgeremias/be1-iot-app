@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { authService } from '../services/auth.service';
 import type { LoginInput } from '../schemas/auth.schema';
 
-/** Performs login, persists the token, flips session state, routes to home. */
+/** Performs login, persists token/refreshToken/userId, flips session, routes home. */
 export function useLogin() {
   const router = useRouter();
   const signIn = useAuthStore((s) => s.signIn);
@@ -16,7 +16,11 @@ export function useLogin() {
   return useMutation({
     mutationFn: (input: LoginInput) => authService.login(input),
     onSuccess: async (session, variables) => {
-      await storage.set(StorageKeys.authToken, session.token);
+      await Promise.all([
+        storage.set(StorageKeys.authToken, session.token),
+        storage.set(StorageKeys.refreshToken, session.refreshToken),
+        storage.set(StorageKeys.userId, session.user.id),
+      ]);
       if (variables.remember) {
         await storage.set(StorageKeys.rememberEmail, variables.email);
       } else {

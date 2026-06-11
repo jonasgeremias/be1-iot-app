@@ -1,16 +1,47 @@
 import { z } from 'zod';
 
-/** Authenticated user's profile (screen 06). */
-export const profileSchema = z.object({
-  name: z.string(),
-  role: z.string(),
-  location: z.string(),
-  monogram: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  state: z.string(),
-  cpf: z.string(),
-  notifications: z.number(),
-  twoFactorEnabled: z.boolean(),
-});
-export type Profile = z.infer<typeof profileSchema>;
+/**
+ * Authenticated user (GET /users/{id}) — lenient, since the backend returns the
+ * full IUser. We only consume a subset; extra keys pass through.
+ */
+export const profileUserSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().optional().default(''),
+    email: z.string().optional().default(''),
+    cpf: z.string().nullish(),
+    phone: z.string().nullish(),
+    birthdate: z.string().nullish(),
+    avatarUrl: z.string().nullish(),
+    avatar: z.string().nullish(),
+    cityId: z.string().nullish(),
+    cityRelation: z.any().optional(),
+    roles: z.array(z.object({ name: z.string() }).passthrough()).nullish(),
+  })
+  .passthrough();
+
+/** Explicit type (z.any on cityRelation keeps inference clean). */
+export type ProfileUser = {
+  id: string;
+  name: string;
+  email: string;
+  cpf?: string | null;
+  phone?: string | null;
+  birthdate?: string | null;
+  avatarUrl?: string | null;
+  avatar?: string | null;
+  cityId?: string | null;
+  cityRelation?: {
+    name?: string | null;
+    state?: { name?: string | null; uf?: string | null } | null;
+  } | null;
+  roles?: { name: string }[] | null;
+};
+
+/** Editable fields submitted to POST /users/update/{id}. */
+export type ProfileUpdateInput = {
+  name?: string;
+  phone?: string;
+  cpf?: string;
+  birthdate?: string;
+};

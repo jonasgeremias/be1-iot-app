@@ -109,14 +109,13 @@ export function LoginScreen() {
               render={({ field, fieldState }) => (
                 <YStack mb="$16">
                   <Input
-                    label="E-mail"
-                    accessibilityLabel="E-mail"
+                    label="E-mail ou CPF"
+                    accessibilityLabel="E-mail ou CPF"
                     icon={<Mail size={19} color="$text3" />}
                     value={field.value}
                     onChangeText={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="seu@email.com"
-                    keyboardType="email-address"
+                    placeholder="seu@email.com ou CPF"
                   />
                   {fieldState.error ? (
                     <Text color="$red" fontSize="$11" mt="$6">

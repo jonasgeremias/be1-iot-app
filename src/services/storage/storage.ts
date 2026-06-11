@@ -8,7 +8,10 @@ import { StorageKeys, type StorageKey } from './storage.keys';
  * Storage facade. Light prefs go to AsyncStorage; sensitive values (auth token)
  * go to SecureStore as recommended by the spec. Framework-agnostic — no React.
  */
-const SECURE_KEYS: StorageKey[] = [StorageKeys.authToken];
+const SECURE_KEYS: StorageKey[] = [
+  StorageKeys.authToken,
+  StorageKeys.refreshToken,
+];
 
 function isSecure(key: StorageKey) {
   return SECURE_KEYS.includes(key);

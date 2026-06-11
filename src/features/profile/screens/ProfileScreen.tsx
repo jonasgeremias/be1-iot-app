@@ -1,18 +1,22 @@
 import {
   Bell,
+  Calendar,
   ChevronLeft,
   ChevronRight,
   CreditCard,
   Lock,
+  LogOut,
   Mail,
   MapPin,
   Pencil,
   Phone,
-  Settings,
   ShieldCheck,
+  User,
+  X,
 } from '@tamagui/lucide-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { XStack, YStack } from 'tamagui';
 
 import { ErrorState } from '@/shared/components/ErrorState';
@@ -22,18 +26,56 @@ import { Screen } from '@/shared/layouts/Screen';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { IconButton } from '@/shared/ui/IconButton';
+import { Input } from '@/shared/ui/Input';
 import { Separator } from '@/shared/ui/Separator';
 import { Switch } from '@/shared/ui/Switch';
 import { Text } from '@/shared/ui/Text';
+import {
+  formatCPF,
+  formatDateBr,
+  formatPhone,
+  monogramOf,
+  onlyDigits,
+} from '@/utils/format.util';
+
+import { useLogout } from '@/hooks/useLogout';
 
 import { ProfileHeader } from '../components/ProfileHeader';
 import { useProfile } from '../hooks/useProfile';
+import { useUpdateAvatar } from '../hooks/useUpdateAvatar';
+import { useUpdateProfile } from '../hooks/useUpdateProfile';
+import type { ProfileUpdateInput } from '../schemas/profile.schema';
 
-/** Client profile (screen 06). */
+function brToIso(s: string): string | undefined {
+  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return undefined;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+/** Client profile with inline edit + logout (screen 06, be1-app parity). */
 export function ProfileScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, refetch } = useProfile();
+  const { data, isLoading, isError, refetch, userId } = useProfile();
+  const update = useUpdateProfile(userId);
+  const avatar = useUpdateAvatar();
+  const logout = useLogout();
+
+  const [editing, setEditing] = useState(false);
   const [twoFactor, setTwoFactor] = useState(true);
+
+  // editable fields
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [birth, setBirth] = useState('');
+
+  useEffect(() => {
+    if (!data) return;
+    setName(data.name ?? '');
+    setPhone(formatPhone(data.phone ?? ''));
+    setCpf(formatCPF(data.cpf ?? ''));
+    setBirth(formatDateBr(data.birthdate));
+  }, [data]);
 
   if (isError) {
     return (
@@ -50,6 +92,56 @@ export function ProfileScreen() {
     );
   }
 
+  const role = data.roles?.[0]?.name ?? 'Usuário';
+  const city = data.cityRelation?.name ?? '';
+  const stateLabel =
+    data.cityRelation?.state?.uf ?? data.cityRelation?.state?.name ?? '';
+  const location = [city, stateLabel].filter(Boolean).join(' · ');
+  const imageUrl = data.avatarUrl ?? data.avatar ?? null;
+
+  const canSave =
+    name.trim() !== '' &&
+    onlyDigits(cpf).length === 11 &&
+    onlyDigits(phone).length === 11;
+
+  const pickAvatar = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (res.canceled || !res.assets?.[0]) return;
+    const a = res.assets[0];
+    await avatar.mutateAsync({
+      uri: a.uri,
+      name: a.fileName ?? 'avatar.jpg',
+      type: a.mimeType ?? 'image/jpeg',
+    });
+  };
+
+  const handleSave = async () => {
+    const payload: ProfileUpdateInput = {
+      name: name.trim(),
+      phone: onlyDigits(phone),
+      cpf: onlyDigits(cpf),
+    };
+    const iso = brToIso(birth);
+    if (iso) payload.birthdate = iso;
+    await update.mutateAsync(payload);
+    setEditing(false);
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+    setName(data.name ?? '');
+    setPhone(formatPhone(data.phone ?? ''));
+    setCpf(formatCPF(data.cpf ?? ''));
+    setBirth(formatDateBr(data.birthdate));
+  };
+
   return (
     <Screen scroll tabBarSpacing>
       {/* Header */}
@@ -60,49 +152,145 @@ export function ProfileScreen() {
         <Text fontSize="$17" fontWeight="800" color="$text">
           Meu Perfil
         </Text>
-        <IconButton accessibilityLabel="Configurações">
-          <Settings size={18} color="$text2" />
-        </IconButton>
+        {editing ? (
+          <IconButton accessibilityLabel="Cancelar edição" onPress={cancelEdit}>
+            <X size={18} color="$text2" />
+          </IconButton>
+        ) : (
+          <IconButton accessibilityLabel="Sair" onPress={() => void logout()}>
+            <LogOut size={18} color="$red" />
+          </IconButton>
+        )}
       </XStack>
 
       <YStack px="$16" gap="$13" pt="$6">
-        <ProfileHeader profile={data} />
+        <ProfileHeader
+          name={data.name}
+          role={role}
+          location={location}
+          monogram={monogramOf(data.name)}
+          imageUrl={imageUrl}
+          onEditAvatar={() => void pickAvatar()}
+        />
 
         {/* Personal info */}
         <Card radius={18} elevated>
           <ListRow
             icon={<Mail size={18} color="$brand" />}
             label="E-mail"
-            title={data.email}
+            title={data.email || '—'}
           />
-          <Separator mx="$15" />
-          <ListRow
-            icon={<Phone size={18} color="$brand" />}
-            label="Telefone celular"
-            title={data.phone}
-            mono
-          />
-          <Separator mx="$15" />
-          <ListRow
-            icon={<MapPin size={18} color="$brand" />}
-            label="Estado"
-            title={data.state}
-          />
-          <Separator mx="$15" />
-          <ListRow
-            icon={<CreditCard size={18} color="$brand" />}
-            label="CPF"
-            title={data.cpf}
-            mono
-          />
+
+          {editing ? (
+            <YStack px="$15" pt="$8" pb="$13" gap="$13">
+              <YStack>
+                <Input
+                  label="Nome"
+                  accessibilityLabel="Nome"
+                  icon={<User size={18} color="$text3" />}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Seu nome"
+                  autoCapitalize="sentences"
+                />
+              </YStack>
+              <YStack>
+                <Input
+                  label="Telefone"
+                  accessibilityLabel="Telefone"
+                  icon={<Phone size={18} color="$text3" />}
+                  value={phone}
+                  onChangeText={(t) => setPhone(formatPhone(t))}
+                  placeholder="(00) 0 0000-0000"
+                />
+              </YStack>
+              <YStack>
+                <Input
+                  label="CPF"
+                  accessibilityLabel="CPF"
+                  icon={<CreditCard size={18} color="$text3" />}
+                  value={cpf}
+                  onChangeText={(t) => setCpf(formatCPF(t))}
+                  placeholder="000.000.000-00"
+                />
+              </YStack>
+              <YStack>
+                <Input
+                  label="Nascimento"
+                  accessibilityLabel="Data de nascimento"
+                  icon={<Calendar size={18} color="$text3" />}
+                  value={birth}
+                  onChangeText={setBirth}
+                  placeholder="dd/mm/aaaa"
+                />
+              </YStack>
+              {location ? (
+                <Text fontSize="$10.5" color="$text3">
+                  Localização: {location} · edição de estado/cidade em breve
+                </Text>
+              ) : null}
+            </YStack>
+          ) : (
+            <>
+              <Separator mx="$15" />
+              <ListRow
+                icon={<Phone size={18} color="$brand" />}
+                label="Telefone celular"
+                title={data.phone ? formatPhone(data.phone) : '—'}
+                mono
+              />
+              <Separator mx="$15" />
+              <ListRow
+                icon={<MapPin size={18} color="$brand" />}
+                label="Localização"
+                title={location || '—'}
+              />
+              <Separator mx="$15" />
+              <ListRow
+                icon={<CreditCard size={18} color="$brand" />}
+                label="CPF"
+                title={data.cpf ? formatCPF(data.cpf) : '—'}
+                mono
+              />
+              <Separator mx="$15" />
+              <ListRow
+                icon={<Calendar size={18} color="$brand" />}
+                label="Nascimento"
+                title={formatDateBr(data.birthdate) || '—'}
+                mono
+              />
+            </>
+          )}
         </Card>
 
-        <Button
-          icon={<Pencil size={17} color="$white" />}
-          accessibilityLabel="Editar informações"
-        >
-          Editar Informações
-        </Button>
+        {update.isError ? (
+          <Text fontSize="$11" color="$red">
+            Não foi possível salvar. Tente novamente.
+          </Text>
+        ) : null}
+
+        {editing ? (
+          <YStack gap="$8">
+            <Button
+              onPress={() => void handleSave()}
+              disabled={!canSave || update.isPending}
+              opacity={!canSave || update.isPending ? 0.6 : 1}
+            >
+              {update.isPending ? 'Salvando…' : 'Salvar alterações'}
+            </Button>
+            <Button variant="ghost" onPress={cancelEdit}>
+              Cancelar
+            </Button>
+          </YStack>
+        ) : (
+          <Button
+            icon={<Pencil size={17} color="$white" />}
+            accessibilityLabel="Editar informações"
+            onPress={() => setEditing(true)}
+          >
+            Editar Informações
+          </Button>
+        )}
 
         {/* Account settings */}
         <Card radius={18} elevated>
@@ -121,7 +309,7 @@ export function ProfileScreen() {
             icon={<Lock size={17} color="$text2" />}
             iconSize={32}
             title="Alterar senha"
-            onPress={() => {}}
+            onPress={() => router.push('/(auth)/forgot-password')}
             right={<ChevronRight size={17} color="$text3" />}
           />
           <Separator mx="$15" />
@@ -130,14 +318,7 @@ export function ProfileScreen() {
             iconSize={32}
             title="Notificações"
             onPress={() => {}}
-            right={
-              <XStack ai="center" gap="$8">
-                <Text fontSize="$11" fontWeight="700" color="$text3">
-                  {data.notifications} novas
-                </Text>
-                <ChevronRight size={17} color="$text3" />
-              </XStack>
-            }
+            right={<ChevronRight size={17} color="$text3" />}
           />
           <Separator mx="$15" />
           <ListRow
@@ -157,6 +338,16 @@ export function ProfileScreen() {
             }
           />
         </Card>
+
+        {/* Logout */}
+        <Button
+          variant="outline"
+          icon={<LogOut size={17} color="$red" />}
+          accessibilityLabel="Sair da conta"
+          onPress={() => void logout()}
+        >
+          Sair
+        </Button>
       </YStack>
     </Screen>
   );

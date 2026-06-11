@@ -5,24 +5,25 @@ import { YStack } from 'tamagui';
 import { appConfig } from '@/config/app.config';
 import { BrandGradient } from '@/shared/ui/BrandGradient';
 import { MonoText } from '@/shared/ui/Text';
-import { useAuthStore } from '@/store/auth.store';
 
+import { useAuthBootstrap } from '../hooks/useAuthBootstrap';
 import { SplashLogo } from '../components/SplashLogo';
 
 /**
- * Animated splash (screen 00). Holds briefly, then routes to the main app if a
- * session exists, otherwise to login.
+ * Animated splash (screen 00). Restores the session from storage, then routes
+ * to the main app if it is still valid, otherwise to login.
  */
 export function SplashScreen() {
   const router = useRouter();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { ready, authed } = useAuthBootstrap();
 
   useEffect(() => {
+    if (!ready) return;
     const id = setTimeout(() => {
-      router.replace(isAuthenticated ? '/(main)' : '/(auth)/login');
-    }, 2200);
+      router.replace(authed ? '/(main)' : '/(auth)/login');
+    }, 900);
     return () => clearTimeout(id);
-  }, [router, isAuthenticated]);
+  }, [ready, authed, router]);
 
   return (
     <BrandGradient
