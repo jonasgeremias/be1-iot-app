@@ -1,126 +1,90 @@
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { View, XStack, YStack } from 'tamagui';
+import { XStack, YStack } from 'tamagui';
 
-import { ErrorState } from '@/shared/components/ErrorState';
 import { EmptyState } from '@/shared/components/EmptyState';
+import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { SearchInput } from '@/shared/components/SearchInput';
-import { SectionTitle } from '@/shared/components/SectionTitle';
 import { Screen } from '@/shared/layouts/Screen';
-import { IconButton } from '@/shared/ui/IconButton';
-import { ChevronLeft } from '@tamagui/lucide-icons';
-import { MonoText, Text } from '@/shared/ui/Text';
-import { SegmentedControl } from '@/shared/ui/SegmentedControl';
-import { useAppStore } from '@/store/app.store';
+import { Text } from '@/shared/ui/Text';
 
-import { DeviceCard } from '../components/DeviceCard';
-import { DeviceFilterChips } from '../components/DeviceFilterChips';
-import { useDevices } from '../hooks/useDevices';
-import type { DeviceGroup, DeviceListItem } from '../schemas/device.schema';
+import { CircularCountdown } from '../components/CircularCountdown';
+import { GroupSection } from '../components/GroupSection';
+import type { IotGroupedEntry } from '../schemas/device.schema';
+import { useIotDevices } from '../hooks/useIotDevices';
+import { LATEST_CARD_POLL_MS } from '../hooks/useIotLatestData';
+import { useRefetchCountdown } from '../hooks/useRefetchCountdown';
 
-type ViewMode = 'cards' | 'tabela';
-
-/** Device list · groups (screen 03). */
+/** Device monitoring list · grouped by facility (be1-app MonitoringList). */
 export function DevicesListScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('cards');
-  const filter = useAppStore((s) => s.activeDeviceFilter);
-  const setFilter = useAppStore((s) => s.setActiveDeviceFilter);
 
-  const { groups, totalShown, isLoading, isError, refetch, data } =
-    useDevices(search, filter);
+  const { grouped, isLoading, isError, refetch, dataUpdatedAt } =
+    useIotDevices(LATEST_CARD_POLL_MS);
 
-  const onlineCount = useMemo(
-    () =>
-      (data ?? [])
-        .flatMap((g: DeviceGroup) => g.devices)
-        .filter((d: DeviceListItem) => d.status === 'online').length,
-    [data],
+  // Countdown to the next 30s poll (be1-app parity).
+  const { secondsLeft, totalSeconds, progress } = useRefetchCountdown(
+    LATEST_CARD_POLL_MS,
+    dataUpdatedAt,
   );
-  const totalCount = useMemo(
-    () => (data ?? []).reduce((acc: number, g: DeviceGroup) => acc + g.total, 0),
-    [data],
-  );
+
+  // Named groups first, "ungrouped" last.
+  const sortedEntries = useMemo<[string, IotGroupedEntry][]>(() => {
+    if (!grouped) return [];
+    const entries = Object.entries(grouped) as [string, IotGroupedEntry][];
+    return [
+      ...entries.filter(([k]) => k !== 'ungrouped'),
+      ...entries.filter(([k]) => k === 'ungrouped'),
+    ];
+  }, [grouped]);
+
+  const hasAnyDevices = sortedEntries.some(([, e]) => e.devices.length > 0);
 
   return (
     <Screen scroll tabBarSpacing>
-      {/* Header */}
-      <XStack px="$16" pt="$4" pb="$12" ai="center" jc="space-between">
-        <XStack ai="center" gap="$12">
-          <IconButton
-            accessibilityLabel="Voltar"
-            onPress={() => router.push('/(main)')}
-          >
-            <ChevronLeft size={19} color="$text" />
-          </IconButton>
-          <YStack>
-            <Text fontSize="$20" fontWeight="800" color="$text" letterSpacing={-0.3}>
-              Dispositivos
-            </Text>
-            <Text fontSize="$11" color="$text3">
-              {(data ?? []).length} grupos · {totalCount} no total
-            </Text>
-          </YStack>
+      <YStack px="$16" pt="$4" pb="$12">
+        <XStack ai="center" jc="space-between">
+          <Text fontSize="$20" fontWeight="800" color="$text" letterSpacing={-0.3}>
+            Monitoramento
+          </Text>
+          <CircularCountdown
+            secondsLeft={secondsLeft}
+            totalSeconds={totalSeconds}
+            progress={progress}
+            onPress={() => void refetch()}
+          />
         </XStack>
-        <View
-          width={42}
-          height={42}
-          br={21}
-          borderWidth={2.5}
-          borderColor="$brand"
-          ai="center"
-          jc="center"
-        >
-          <MonoText fontSize="$13" fontWeight="800" color="$brand">
-            {onlineCount}
-          </MonoText>
-        </View>
-      </XStack>
-
-      <YStack px="$16" mb="$11">
-        <SearchInput value={search} onChangeText={setSearch} />
+        {hasAnyDevices ? (
+          <YStack mt="$10">
+            <SearchInput
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Pesquisar dispositivo…"
+            />
+          </YStack>
+        ) : null}
       </YStack>
 
-      <YStack px="$16" mb="$12">
-        <DeviceFilterChips value={filter} onChange={setFilter} />
-      </YStack>
-
-      {/* Body */}
       {isError ? (
         <ErrorState onRetry={() => void refetch()} />
       ) : isLoading ? (
         <LoadingState />
-      ) : totalShown === 0 ? (
+      ) : !hasAnyDevices ? (
         <EmptyState
           title="Nenhum dispositivo"
-          description="Ajuste a busca ou os filtros para ver seus dispositivos."
+          description="Nenhum dispositivo encontrado para esta conta."
         />
       ) : (
-        <YStack px="$16" gap="$11">
-          {groups.map((group) => (
-            <YStack key={group.id} gap="$11">
-              <XStack ai="center" jc="space-between">
-                <SectionTitle>{`${group.name} · ${group.total}`}</SectionTitle>
-                <SegmentedControl<ViewMode>
-                  variant="pill"
-                  value={viewMode}
-                  onChange={setViewMode}
-                  options={[
-                    { value: 'cards', label: 'Cards' },
-                    { value: 'tabela', label: 'Tabela' },
-                  ]}
-                />
-              </XStack>
-              {group.devices.map((device) => (
-                <DeviceCard
-                  key={device.id}
-                  device={device}
-                  onPress={() => router.push(`/device/${device.id}`)}
-                />
-              ))}
-            </YStack>
+        <YStack px="$16">
+          {sortedEntries.map(([key, entry]) => (
+            <GroupSection
+              key={key}
+              entry={entry}
+              searchQuery={search}
+              onDevicePress={(device) => router.push(`/device/${device.id}`)}
+            />
           ))}
         </YStack>
       )}

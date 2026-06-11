@@ -1,93 +1,328 @@
-import { Pencil } from '@tamagui/lucide-icons';
+import { Ban, CloudOff, Pencil } from '@tamagui/lucide-icons';
+import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { XStack, YStack } from 'tamagui';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { View, XStack, YStack } from 'tamagui';
 
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
 import { Chip } from '@/shared/ui/Chip';
 import { IconButton } from '@/shared/ui/IconButton';
-import { ChevronLeft } from '@tamagui/lucide-icons';
 import { Text } from '@/shared/ui/Text';
 
-import { AlarmBanner } from '../components/AlarmBanner';
-import { GaugePanel } from '../components/GaugePanel';
-import { HistoryCard } from '../components/HistoryCard';
-import { LastReadingBanner } from '../components/LastReadingBanner';
-import { PhaseClimateCard } from '../components/PhaseClimateCard';
-import { PlantaCard } from '../components/PlantaCard';
-import { SopradorCard } from '../components/SopradorCard';
-import { VariationChart } from '../components/VariationChart';
-import { useDevice } from '../hooks/useDevice';
-import { useDeviceRealtime } from '../hooks/useDeviceRealtime';
+import { BulkDeviceHistory } from '../components/BulkDeviceHistory';
+import { BulkLastReadingBar } from '../components/BulkLastReadingBar';
+import { Cb200StatCards } from '../components/Cb200StatCards';
+import { ChamberGrid } from '../components/ChamberGrid';
+import { ChamberHistoryChart } from '../components/ChamberHistoryChart';
+import { EditNameModal } from '../components/EditNameModal';
+import { IotAlarmCard } from '../components/IotAlarmCard';
+import { SccCb200Card } from '../components/SccCb200Card';
+import { SccTempVariationChart } from '../components/SccTempVariationChart';
+import { TimeRangePicker } from '../components/TimeRangePicker';
+import { useIotDevice } from '../hooks/useIotDevice';
+import { useIotDeviceHistory } from '../hooks/useIotDeviceHistory';
+import { useIotDevices } from '../hooks/useIotDevices';
+import { LATEST_CARD_POLL_MS, useIotLatestData } from '../hooks/useIotLatestData';
+import { useRefetchCountdown } from '../hooks/useRefetchCountdown';
+import {
+  getCb200Snapshot,
+  getDeviceSnapshot,
+  getSccCb200Data,
+  getSccChambers,
+  getSccDeviceSnapshot,
+} from '../utils/latestData';
+import { formatMac, STATUS_LABELS } from '../utils/iotConstants';
+import {
+  timeRangePresets,
+  type TimeRangePresetOptions,
+} from '../utils/timeRangePresets';
 
-/** Device detail · real-time (screen 04). */
+function NoDeviceData() {
+  return (
+    <YStack flex={1} ai="center" jc="center" p="$32" gap="$12">
+      <CloudOff size={48} color="$text3" />
+      <Text fontSize={16} ta="center" color="$text2">
+        Nenhum dado encontrado para este dispositivo.
+      </Text>
+    </YStack>
+  );
+}
+
+/** Device detail · real-time data with all cards by type — be1-app MonitoringView. */
 export function DeviceRealtimeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
   const router = useRouter();
-  const { data, isLoading, isError, refetch } = useDevice(deviceId);
-  useDeviceRealtime(deviceId);
 
-  if (isError) {
+  const { device, isLoading: isLoadingDevice, isError: deviceError, refetch: refetchDevice } =
+    useIotDevice(deviceId);
+
+  const isScc = device?.deviceType === 'SCC';
+  const isBulkLike = device?.deviceType === 'PP' || device?.deviceType === 'BULK';
+
+  // ── time range + chamber selection ─────────────────────────────────────────
+  const [timeRangeOption, setTimeRangeOption] =
+    useState<TimeRangePresetOptions>('1day');
+  const [timeOffset, setTimeOffset] = useState(0);
+  const timeRange = timeRangePresets[timeRangeOption];
+  const [selectedChamber, setSelectedChamber] = useState<string | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
+
+  // ── nickname editing ───────────────────────────────────────────────────────
+  const [isEditing, setIsEditing] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+  const [newNickname, setNewNickname] = useState('');
+  const { updateDeviceName } = useIotDevices();
+  const fallbackName = device
+    ? device.nickname || formatMac(device.macAddress)
+    : '';
+  useEffect(() => {
+    if (device) setNewNickname(device.nickname || formatMac(device.macAddress));
+  }, [device]);
+
+  // ── data hooks ─────────────────────────────────────────────────────────────
+  const {
+    latestData,
+    lastFetch,
+    refetch: refetchLatest,
+    isLoading: isLoadingLatest,
+    dataUpdatedAt,
+  } = useIotLatestData(
+    deviceId,
+    isScc || isBulkLike ? LATEST_CARD_POLL_MS : undefined,
+  );
+
+  const sccChambers = getSccChambers(latestData);
+  const cb200Snapshot = getCb200Snapshot(latestData);
+  const sccCb200Data = getSccCb200Data(latestData);
+  const sccDeviceSnapshot = getSccDeviceSnapshot(latestData);
+
+  const {
+    deviceHistory,
+    isFetching: isFetchingHistory,
+    refetch: refetchHistory,
+  } = useIotDeviceHistory(isScc ? deviceId : '', timeRangeOption, timeOffset);
+
+  // auto-select first chamber
+  useEffect(() => {
+    if (!selectedChamber && sccChambers) {
+      const first = Object.keys(sccChambers)
+        .filter((k) => k !== '9')
+        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))[0];
+      if (first) setSelectedChamber(first);
+    }
+  }, [sccChambers, selectedChamber]);
+
+  const { secondsLeft, totalSeconds, progress } = useRefetchCountdown(
+    LATEST_CARD_POLL_MS,
+    dataUpdatedAt,
+  );
+
+  const chamberHistory = selectedChamber
+    ? (deviceHistory?.[selectedChamber] ?? [])
+    : [];
+
+  // ── refresh (stable refs so the interval never goes stale) ─────────────────
+  const refetchLatestRef = useRef(refetchLatest);
+  const refetchHistoryRef = useRef(refetchHistory);
+  useEffect(() => {
+    refetchLatestRef.current = refetchLatest;
+  }, [refetchLatest]);
+  useEffect(() => {
+    refetchHistoryRef.current = refetchHistory;
+  }, [refetchHistory]);
+
+  const handleRefresh = useCallback(() => {
+    void refetchLatestRef.current();
+    void refetchHistoryRef.current();
+  }, []);
+
+  // auto-refresh every 40s when on the current period
+  useEffect(() => {
+    if (timeOffset !== 0) return;
+    const t = setInterval(handleRefresh, 40_000);
+    return () => clearInterval(t);
+  }, [timeOffset, handleRefresh]);
+
+  const moveTimeOffset = (move: 1 | -1) =>
+    setTimeOffset((prev) => Math.max(0, prev + move));
+
+  const handleGoToLastDataPeriod = useCallback(() => {
+    if (!lastFetch) return;
+    const preset = timeRangePresets[timeRangeOption];
+    const target = lastFetch.getTime();
+    const MAX_LOOKBACK = 100;
+    let found = 0;
+    for (let offset = 0; offset < MAX_LOOKBACK; offset++) {
+      const start = preset.getStart(offset);
+      const end = preset.getEnd(offset) ?? new Date();
+      if (!start) continue;
+      if (target >= start.getTime() && target <= end.getTime()) {
+        found = offset;
+        break;
+      }
+    }
+    setTimeOffset(found);
+  }, [lastFetch, timeRangeOption]);
+
+  const handleEditName = async () => {
+    if (!device) return;
+    try {
+      setSavingName(true);
+      await updateDeviceName({
+        id: device.id,
+        nickname: newNickname || fallbackName,
+      });
+      setIsEditing(false);
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  // ── render gates ───────────────────────────────────────────────────────────
+  if (deviceError) {
     return (
       <Screen tabBarSpacing>
-        <ErrorState onRetry={() => void refetch()} />
+        <ErrorState onRetry={() => void refetchDevice()} />
       </Screen>
     );
   }
-
-  if (isLoading || !data) {
+  if (isLoadingDevice && !device) {
     return (
       <Screen tabBarSpacing>
         <LoadingState />
       </Screen>
     );
   }
+  if (!device) {
+    return (
+      <Screen tabBarSpacing>
+        <NoDeviceData />
+      </Screen>
+    );
+  }
+
+  const status = STATUS_LABELS[device.status];
+  const hasChamberData = sccChambers
+    ? Object.keys(sccChambers).some((k) => k !== '9')
+    : false;
 
   return (
     <Screen scroll tabBarSpacing>
-      {/* Header */}
+      {/* header */}
       <XStack px="$16" pt="$4" pb="$8" ai="center" gap="$12">
         <IconButton accessibilityLabel="Voltar" onPress={() => router.back()}>
           <ChevronLeft size={19} color="$text" />
         </IconButton>
         <YStack flex={1} minWidth={0}>
-          <Text fontSize="$19" fontWeight="800" color="$text" letterSpacing={-0.3}>
-            {data.name}
+          <Text fontSize="$19" fontWeight="800" color="$text" numberOfLines={1} letterSpacing={-0.3}>
+            {device.nickname || fallbackName}
           </Text>
         </YStack>
-        <IconButton accessibilityLabel="Editar dispositivo" tone="brandSoft">
+        <IconButton
+          accessibilityLabel="Editar dispositivo"
+          tone="brandSoft"
+          onPress={() => setIsEditing(true)}
+        >
           <Pencil size={17} color="$brand" />
         </IconButton>
       </XStack>
 
-      {/* Meta chips */}
+      {/* meta chips */}
       <XStack px="$16" pb="$12" gap="$6" flexWrap="wrap">
-        <Chip tone="brand" label={`MODELO · ${data.model}`} fontWeight="800" px="$9" />
-        <Chip
-          tone={data.status === 'online' ? 'online' : 'red'}
-          label={data.status === 'online' ? 'ATIVO' : 'OFFLINE'}
-          fontWeight="800"
-          px="$9"
-        />
-        <Chip tone="neutral" label={data.mac} mono fontWeight="600" px="$9" />
+        <Chip tone="brand" label={`MODELO · ${device.deviceType}`} fontWeight="800" />
+        <Chip tone={status.tone} label={status.label} fontWeight="800" />
+        <Chip tone="neutral" label={formatMac(device.macAddress)} mono fontWeight="600" />
       </XStack>
 
       <YStack px="$16" gap="$11">
-        <LastReadingBanner
-          cycle={data.cycle}
-          label={data.lastReadingLabel}
-          status={data.status}
-        />
-        <PlantaCard chambersLabel={`${data.chambers.length} câmaras`} />
-        <VariationChart chambers={data.chambers} />
-        <GaugePanel model="CB200" temp={data.temp} humidity={data.humidity} />
-        <SopradorCard on={data.blowerOn} />
-        <PhaseClimateCard phase={data.phase} climate={data.climate} />
-        <AlarmBanner hasAlarms={data.hasAlarms} />
-        <HistoryCard />
+        {/* last reading bar (both SCC and PP/BULK) */}
+        {isScc || isBulkLike ? (
+          <BulkLastReadingBar
+            lastReading={lastFetch}
+            deviceStatus={device.status}
+            secondsLeft={secondsLeft}
+            totalSeconds={totalSeconds}
+            progress={progress}
+            onRefetch={() => void refetchLatest()}
+          />
+        ) : null}
+
+        {/* per-type content */}
+        {isScc ? (
+          isLoadingLatest || hasChamberData ? (
+            <>
+              <ChamberGrid
+                latestData={sccChambers}
+                isLoading={isLoadingLatest}
+                selectedChamber={selectedChamber}
+                onSelectChamber={setSelectedChamber}
+              />
+              <ChamberHistoryChart
+                chamberHistory={chamberHistory}
+                isFetching={isFetchingHistory}
+                selectedChamber={selectedChamber}
+                timeRange={timeRange}
+                timeOffset={timeOffset}
+                onMoveOffset={moveTimeOffset}
+                onResetOffset={() => setTimeOffset(0)}
+                onOpenPicker={() => setShowPicker(true)}
+                onGoToLastDataPeriod={handleGoToLastDataPeriod}
+              />
+              <SccTempVariationChart
+                chambers={sccChambers}
+                scale={sccCb200Data?.celsius ? 'celsius' : 'fahrenheit'}
+                highVariationThresholdF={15}
+              />
+              {sccCb200Data ? <SccCb200Card cb200Data={sccCb200Data} /> : null}
+              {sccDeviceSnapshot ? (
+                <IotAlarmCard alarmsFlags={sccDeviceSnapshot.alarmsFlags} />
+              ) : null}
+            </>
+          ) : (
+            <NoDeviceData />
+          )
+        ) : isBulkLike ? (
+          <>
+            <Cb200StatCards snapshot={cb200Snapshot} />
+            {getDeviceSnapshot(latestData) ? (
+              <IotAlarmCard alarmsFlags={getDeviceSnapshot(latestData)!.alarmsFlags} />
+            ) : null}
+            <BulkDeviceHistory deviceId={device.id} referenceDate={lastFetch} />
+          </>
+        ) : (
+          <YStack ai="center" jc="center" p="$32" gap="$12">
+            <Ban size={48} color="$text3" />
+            <Text fontSize={16} ta="center" color="$text2">
+              Tipo de dispositivo não suportado nesta versão.
+            </Text>
+          </YStack>
+        )}
       </YStack>
+
+      <TimeRangePicker
+        visible={showPicker}
+        selected={timeRangeOption}
+        onClose={() => setShowPicker(false)}
+        onSelect={(opt) => {
+          setTimeRangeOption(opt);
+          setTimeOffset(0);
+        }}
+      />
+
+      <EditNameModal
+        visible={isEditing}
+        value={newNickname}
+        isLoading={savingName}
+        onChange={setNewNickname}
+        onCancel={() => {
+          setIsEditing(false);
+          setNewNickname(device.nickname || fallbackName);
+        }}
+        onSave={() => void handleEditName()}
+      />
     </Screen>
   );
 }
