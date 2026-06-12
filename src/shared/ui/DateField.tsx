@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { Modal, Platform } from 'react-native';
 import { View, XStack, YStack } from 'tamagui';
 
+import { useThemeStore } from '@/store/theme.store';
+
 import { Button } from './Button';
 import { Card } from './Card';
 import { Text } from './Text';
@@ -38,6 +40,8 @@ export function DateField({
 }: Props) {
   const [show, setShow] = useState(false);
   const [temp, setTemp] = useState<Date>(value ?? defaultDate ?? new Date());
+  const mode = useThemeStore((s) => s.mode);
+  const themeVariant = mode === 'dark' ? 'dark' : 'light';
 
   const open = () => {
     setTemp(value ?? defaultDate ?? new Date());
@@ -88,6 +92,7 @@ export function DateField({
         <DateTimePicker
           value={value ?? defaultDate ?? new Date()}
           mode="date"
+          themeVariant={themeVariant}
           onChange={onAndroid}
         />
       ) : null}
@@ -116,6 +121,7 @@ export function DateField({
                 value={temp}
                 mode="date"
                 display="spinner"
+                themeVariant={themeVariant}
                 onChange={(_e, d) => {
                   if (d) setTemp(d);
                 }}

@@ -1,4 +1,4 @@
-import { Bell, BellOff, Rss } from '@tamagui/lucide-icons';
+import { Bell, BellOff, Rss, Wrench } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Modal } from 'react-native';
@@ -103,6 +103,14 @@ export function DashboardScreen() {
             icon={<Rss size={25} color="$white" />}
             accessibilityLabel="Abrir monitoramento"
             onPress={() => router.push('/(main)/devices')}
+          />
+          <AccessCard
+            variant="soft"
+            title="Assistências"
+            subtitle="Suporte e chamados técnicos"
+            icon={<Wrench size={25} color="$brand" />}
+            accessibilityLabel="Abrir assistências"
+            onPress={() => router.push('/(main)/assist')}
           />
         </YStack>
       </YStack>

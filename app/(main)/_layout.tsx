@@ -18,6 +18,7 @@ export default function MainLayout() {
 
   return (
     <Tabs
+      backBehavior="history"
       tabBar={(props) => <MainTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
