@@ -7,10 +7,7 @@
     "scheme": "be1app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#0B3C84",
-      "resizeMode": "contain"
-    },
+    "icon": "./assets/icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -21,7 +18,8 @@
     "android": {
       "package": "br.com.be1.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0B3C84"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
       }
     },
     "web": {

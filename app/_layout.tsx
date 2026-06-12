@@ -13,15 +13,14 @@ import {
 } from '@expo-google-fonts/jetbrains-mono';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { Image, StyleSheet, useColorScheme, View } from 'react-native';
 
 import { AppProviders } from '@/providers/AppProviders';
 import { useThemeStore } from '@/store/theme.store';
 
-void SplashScreen.preventAutoHideAsync();
+const fallbackLogo = require('@/assets/images/be1-white.png');
 
 export default function RootLayout() {
   const hydrate = useThemeStore((s) => s.hydrate);
@@ -31,7 +30,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const systemMode = colorScheme === 'dark' ? 'dark' : 'light';
 
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontsError] = useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
     PlusJakartaSans_600SemiBold,
@@ -51,17 +50,33 @@ export default function RootLayout() {
     setSystemMode(systemMode);
   }, [setSystemMode, systemMode]);
 
-  useEffect(() => {
-    if (fontsLoaded && hydrated) void SplashScreen.hideAsync();
-  }, [fontsLoaded, hydrated]);
+  const appReady = (fontsLoaded || fontsError) && hydrated;
 
-  if (!fontsLoaded || !hydrated) return null;
+  if (!appReady) {
+    return (
+      <View style={styles.bootFallback}>
+        <Image source={fallbackLogo} style={styles.bootLogo} resizeMode="contain" />
+      </View>
+    );
+  }
 
   return (
     <AppProviders>
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
-
     </AppProviders>
   );
 }
+
+const styles = StyleSheet.create({
+  bootFallback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0B3C84',
+  },
+  bootLogo: {
+    width: 132,
+    height: 132,
+  },
+});
