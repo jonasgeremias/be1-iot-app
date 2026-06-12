@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@tamagui/babel-plugin": "^1.144.4",
     "@types/react": "~18.3.12",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^9.39.4",
