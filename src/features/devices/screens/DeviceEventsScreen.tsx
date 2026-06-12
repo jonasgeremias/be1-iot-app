@@ -39,7 +39,7 @@ function fmtEventDate(iso: string): string {
 
 function EventRow({ event }: { event: IotDeviceEvent }) {
   const [open, setOpen] = useState(false);
-  const meta = SEVERITY_META[event.severity];
+  const meta = SEVERITY_META[event.severity] ?? SEVERITY_META.I;
   const Icon = meta.Icon;
   const hasMeta = event.metadata != null;
   const metaText =

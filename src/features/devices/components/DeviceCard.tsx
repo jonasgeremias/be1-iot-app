@@ -8,7 +8,7 @@ import { useIotLatestData, LATEST_CARD_POLL_MS } from '../hooks/useIotLatestData
 import type { IotDevice } from '../schemas/device.schema';
 import { getCb200Snapshot, getSccChambers } from '../utils/latestData';
 import { formatIotReadingDate } from '../utils/iotDates';
-import { formatMac, getReadingStatus, STATUS_LABELS } from '../utils/iotConstants';
+import { formatMac, getReadingStatus, getStatusLabel } from '../utils/iotConstants';
 import { BulkCardSnapshot } from './BulkCardSnapshot';
 import { MiniSccPreview } from './MiniSccPreview';
 
@@ -31,7 +31,7 @@ export function DeviceCard({ device, onPress }: Props) {
   );
 
   const reading = getReadingStatus(lastFetch, device.status);
-  const status = STATUS_LABELS[device.status];
+  const status = getStatusLabel(device.status);
 
   const isScc = device.deviceType === 'SCC';
   const isBulkLike = device.deviceType === 'PP' || device.deviceType === 'BULK';

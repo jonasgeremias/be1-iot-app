@@ -1,7 +1,7 @@
 import { Ban, CloudOff, Pencil } from '@tamagui/lucide-icons';
 import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { YStack, XStack } from 'tamagui';
 
 import { ErrorState } from '@/shared/components/ErrorState';
@@ -11,14 +11,18 @@ import { Chip } from '@/shared/ui/Chip';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 
+import { BulkDeviceHistory } from '../components/BulkDeviceHistory';
 import { BulkLastReadingBar } from '../components/BulkLastReadingBar';
 import { Cb200StatCards } from '../components/Cb200StatCards';
 import { ChamberGrid } from '../components/ChamberGrid';
+import { ChamberHistoryChart } from '../components/ChamberHistoryChart';
 import { EditNameModal } from '../components/EditNameModal';
 import { IotAlarmCard } from '../components/IotAlarmCard';
 import { SccCb200Card } from '../components/SccCb200Card';
 import { SccTempVariationChart } from '../components/SccTempVariationChart';
+import { TimeRangePicker } from '../components/TimeRangePicker';
 import { useIotDevice } from '../hooks/useIotDevice';
+import { useIotDeviceHistory } from '../hooks/useIotDeviceHistory';
 import { useIotDevices } from '../hooks/useIotDevices';
 import { LATEST_CARD_POLL_MS, useIotLatestData } from '../hooks/useIotLatestData';
 import { useRefetchCountdown } from '../hooks/useRefetchCountdown';
@@ -29,7 +33,11 @@ import {
   getSccChambers,
   getSccDeviceSnapshot,
 } from '../utils/latestData';
-import { formatMac, STATUS_LABELS } from '../utils/iotConstants';
+import { formatMac, getStatusLabel } from '../utils/iotConstants';
+import {
+  timeRangePresets,
+  type TimeRangePresetOptions,
+} from '../utils/timeRangePresets';
 
 function NoDeviceData() {
   return (
@@ -42,7 +50,7 @@ function NoDeviceData() {
   );
 }
 
-/** Device detail · live state (be1-app MonitoringView). History lives in the Histórico tab. */
+/** Device detail · live state + live chart (be1-app MonitoringView). */
 export function DeviceRealtimeScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
@@ -54,7 +62,13 @@ export function DeviceRealtimeScreen() {
   const isScc = device?.deviceType === 'SCC';
   const isBulkLike = device?.deviceType === 'PP' || device?.deviceType === 'BULK';
 
+  // ── live history (recent period, auto-refreshing) ──────────────────────────
+  const [timeRangeOption, setTimeRangeOption] =
+    useState<TimeRangePresetOptions>('1day');
+  const [timeOffset, setTimeOffset] = useState(0);
+  const timeRange = timeRangePresets[timeRangeOption];
   const [selectedChamber, setSelectedChamber] = useState<string | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
 
   // ── nickname editing ───────────────────────────────────────────────────────
   const [isEditing, setIsEditing] = useState(false);
@@ -85,7 +99,13 @@ export function DeviceRealtimeScreen() {
   const sccCb200Data = getSccCb200Data(latestData);
   const sccDeviceSnapshot = getSccDeviceSnapshot(latestData);
 
-  // auto-select first chamber (grid highlight)
+  const {
+    deviceHistory,
+    isFetching: isFetchingHistory,
+    refetch: refetchHistory,
+  } = useIotDeviceHistory(isScc ? deviceId : '', timeRangeOption, timeOffset);
+
+  // auto-select first chamber
   useEffect(() => {
     if (!selectedChamber && sccChambers) {
       const first = Object.keys(sccChambers)
@@ -99,6 +119,48 @@ export function DeviceRealtimeScreen() {
     LATEST_CARD_POLL_MS,
     dataUpdatedAt,
   );
+
+  const chamberHistory = selectedChamber
+    ? (deviceHistory?.[selectedChamber] ?? [])
+    : [];
+
+  // auto-refresh latest + history every 40s on the current period
+  const refetchLatestRef = useRef(refetchLatest);
+  const refetchHistoryRef = useRef(refetchHistory);
+  useEffect(() => {
+    refetchLatestRef.current = refetchLatest;
+  }, [refetchLatest]);
+  useEffect(() => {
+    refetchHistoryRef.current = refetchHistory;
+  }, [refetchHistory]);
+  useEffect(() => {
+    if (timeOffset !== 0) return;
+    const t = setInterval(() => {
+      void refetchLatestRef.current();
+      void refetchHistoryRef.current();
+    }, 40_000);
+    return () => clearInterval(t);
+  }, [timeOffset]);
+
+  const moveTimeOffset = (move: 1 | -1) =>
+    setTimeOffset((prev) => Math.max(0, prev + move));
+
+  const handleGoToLastDataPeriod = useCallback(() => {
+    if (!lastFetch) return;
+    const preset = timeRangePresets[timeRangeOption];
+    const target = lastFetch.getTime();
+    let found = 0;
+    for (let offset = 0; offset < 100; offset++) {
+      const start = preset.getStart(offset);
+      const end = preset.getEnd(offset) ?? new Date();
+      if (!start) continue;
+      if (target >= start.getTime() && target <= end.getTime()) {
+        found = offset;
+        break;
+      }
+    }
+    setTimeOffset(found);
+  }, [lastFetch, timeRangeOption]);
 
   const handleEditName = async () => {
     if (!device) return;
@@ -137,7 +199,7 @@ export function DeviceRealtimeScreen() {
     );
   }
 
-  const status = STATUS_LABELS[device.status];
+  const status = getStatusLabel(device.status);
   const hasChamberData = sccChambers
     ? Object.keys(sccChambers).some((k) => k !== '9')
     : false;
@@ -191,6 +253,17 @@ export function DeviceRealtimeScreen() {
                 selectedChamber={selectedChamber}
                 onSelectChamber={setSelectedChamber}
               />
+              <ChamberHistoryChart
+                chamberHistory={chamberHistory}
+                isFetching={isFetchingHistory}
+                selectedChamber={selectedChamber}
+                timeRange={timeRange}
+                timeOffset={timeOffset}
+                onMoveOffset={moveTimeOffset}
+                onResetOffset={() => setTimeOffset(0)}
+                onOpenPicker={() => setShowPicker(true)}
+                onGoToLastDataPeriod={handleGoToLastDataPeriod}
+              />
               <SccTempVariationChart
                 chambers={sccChambers}
                 scale={sccCb200Data?.celsius ? 'celsius' : 'fahrenheit'}
@@ -210,6 +283,7 @@ export function DeviceRealtimeScreen() {
             {getDeviceSnapshot(latestData) ? (
               <IotAlarmCard alarmsFlags={getDeviceSnapshot(latestData)!.alarmsFlags} />
             ) : null}
+            <BulkDeviceHistory deviceId={deviceId} referenceDate={lastFetch} />
           </>
         ) : (
           <YStack ai="center" jc="center" p="$32" gap="$12">
@@ -220,6 +294,16 @@ export function DeviceRealtimeScreen() {
           </YStack>
         )}
       </YStack>
+
+      <TimeRangePicker
+        visible={showPicker}
+        selected={timeRangeOption}
+        onClose={() => setShowPicker(false)}
+        onSelect={(opt) => {
+          setTimeRangeOption(opt);
+          setTimeOffset(0);
+        }}
+      />
 
       <EditNameModal
         visible={isEditing}

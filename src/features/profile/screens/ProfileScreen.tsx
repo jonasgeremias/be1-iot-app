@@ -5,6 +5,7 @@ import {
   LogOut,
   Mail,
   MapPin,
+  Moon,
   Pencil,
   Phone,
   User,
@@ -25,7 +26,9 @@ import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
 import { Select } from '@/shared/ui/Select';
 import { Separator } from '@/shared/ui/Separator';
+import { Switch } from '@/shared/ui/Switch';
 import { Text } from '@/shared/ui/Text';
+import { useThemeStore } from '@/store/theme.store';
 import {
   formatCPF,
   formatDateBr,
@@ -56,6 +59,8 @@ export function ProfileScreen() {
   const update = useUpdateProfile(userId);
   const avatar = useUpdateAvatar();
   const logout = useLogout();
+  const mode = useThemeStore((s) => s.mode);
+  const setMode = useThemeStore((s) => s.setMode);
 
   const [editing, setEditing] = useState(false);
 
@@ -320,6 +325,24 @@ export function ProfileScreen() {
             Editar Informações
           </Button>
         )}
+
+        {/* Appearance */}
+        <Card radius={18} elevated>
+          <ListRow
+            icon={<Moon size={17} color="$brand" />}
+            iconBg="$brandSoft"
+            iconSize={32}
+            title="Modo escuro"
+            subtitle={mode === 'dark' ? 'Ativado' : 'Desativado'}
+            right={
+              <Switch
+                value={mode === 'dark'}
+                onValueChange={(v) => setMode(v ? 'dark' : 'light')}
+                accessibilityLabel="Modo escuro"
+              />
+            }
+          />
+        </Card>
 
         {/* Logout */}
         <Button

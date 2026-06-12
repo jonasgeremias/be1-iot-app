@@ -1,6 +1,6 @@
 /** App-wide constants surfaced in the prototype's chrome/footers. */
 export const appConfig = {
-  name: 'BE1 Tecnologia',
+  name: 'BE1 Smart App',
   appVersion: 'v1.28.0',
   company: 'BE1 TECNOLOGIA',
   support: {
