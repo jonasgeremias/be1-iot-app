@@ -23,6 +23,30 @@ export const SEVERITY_META: Record<
 
 export const SEVERITY_ORDER: IotEventSeverity[] = ['I', 'W', 'E', 'C'];
 
+/**
+ * Normalize a backend severity (single letter, word, or numeric level) to one
+ * of I/W/E/C. Tolerant of casing and formats ('warning', 'W', 2, etc.).
+ */
+export function normalizeSeverity(raw: unknown): IotEventSeverity {
+  if (typeof raw === 'number') {
+    if (raw >= 4) return 'C';
+    if (raw === 3) return 'E';
+    if (raw === 2) return 'W';
+    return 'I';
+  }
+  const s = String(raw ?? '').trim().toUpperCase();
+  if (!s) return 'I';
+  if (s.startsWith('C') || s === 'FATAL') return 'C';
+  if (s.startsWith('E')) return 'E';
+  if (s.startsWith('W') || s.startsWith('A')) return 'W'; // Warning / Aviso
+  return 'I';
+}
+
+/** Severity meta (label/color/icon) for a raw backend value. */
+export function getSeverityMeta(raw: unknown) {
+  return SEVERITY_META[normalizeSeverity(raw)];
+}
+
 const EVENT_TYPE_LABELS: Record<string, string> = {
   DEVICE_AUTH: 'Dispositivo autenticado',
   DEVICE_POWER_ON: 'Dispositivo ligado',

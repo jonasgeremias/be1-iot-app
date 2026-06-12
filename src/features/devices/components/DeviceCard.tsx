@@ -56,26 +56,7 @@ export function DeviceCard({ device, onPress }: Props) {
       accessibilityRole="button"
       accessibilityLabel={`Dispositivo ${primaryLabel}, ${reading.label}`}
     >
-      {/* status pill */}
-      <XStack
-        position="absolute"
-        top={10}
-        right={12}
-        zIndex={2}
-        ai="center"
-        gap="$5"
-        px="$8"
-        py="$3"
-        br={12}
-        bg={reading.color + '22'}
-      >
-        <View width={6} height={6} br={3} bg={reading.color} />
-        <Text fontSize={12} fontWeight="700" color={reading.color}>
-          {reading.label}
-        </Text>
-      </XStack>
-
-      {/* preview + title */}
+      {/* preview + title + status */}
       <XStack width="100%">
         <View
           width={PREVIEW_W}
@@ -90,12 +71,34 @@ export function DeviceCard({ device, onPress }: Props) {
           {preview}
         </View>
 
-        <YStack flex={1} px="$14" py="$12" jc="center">
-          <Text fontSize={15} fontWeight="600" color="$text" numberOfLines={1}>
-            {primaryLabel}
-          </Text>
+        <YStack flex={1} px="$14" py="$12" jc="center" gap="$4">
+          <XStack ai="center" jc="space-between" gap="$8">
+            <Text
+              flex={1}
+              fontSize={15}
+              fontWeight="600"
+              color="$text"
+              numberOfLines={1}
+            >
+              {primaryLabel}
+            </Text>
+            <XStack
+              ai="center"
+              gap="$5"
+              px="$8"
+              py="$3"
+              br={12}
+              bg={reading.color + '22'}
+              flexShrink={0}
+            >
+              <View width={6} height={6} br={3} bg={reading.color} />
+              <Text fontSize={11} fontWeight="700" color={reading.color}>
+                {reading.label}
+              </Text>
+            </XStack>
+          </XStack>
           {lastFetch ? (
-            <Text fontSize={12} color="$text3" mt="$4">
+            <Text fontSize={12} color="$text3">
               {formatIotReadingDate(lastFetch)}
             </Text>
           ) : null}

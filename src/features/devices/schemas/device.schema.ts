@@ -192,7 +192,8 @@ export const iotDeviceEventSchema = z.object({
   id: z.string(),
   deviceId: z.string().optional().default(''),
   timeEmitted: z.string(),
-  severity: iotEventSeveritySchema.catch('I'),
+  // Kept raw (string/number) — normalized to I/W/E/C at display time.
+  severity: z.union([z.string(), z.number()]).catch('I'),
   eventType: z.string(),
   metadata: z.unknown().optional(),
 });
@@ -200,7 +201,7 @@ export type IotDeviceEvent = {
   id: string;
   deviceId: string;
   timeEmitted: string;
-  severity: IotEventSeverity;
+  severity: string | number;
   eventType: string;
   metadata?: unknown;
 };

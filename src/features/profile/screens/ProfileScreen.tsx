@@ -22,6 +22,7 @@ import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { DateField } from '@/shared/ui/DateField';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
 import { Select } from '@/shared/ui/Select';
@@ -46,10 +47,15 @@ import { useUpdateAvatar } from '../hooks/useUpdateAvatar';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
 import type { ProfileUpdateInput } from '../schemas/profile.schema';
 
-function brToIso(s: string): string | undefined {
-  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!m) return undefined;
-  return `${m[3]}-${m[2]}-${m[1]}`;
+const parseDate = (s?: string | null): Date | null => {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+function toYmd(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
 /** Client profile with inline edit + logout (screen 06, be1-app parity). */
@@ -68,7 +74,7 @@ export function ProfileScreen() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [cpf, setCpf] = useState('');
-  const [birth, setBirth] = useState('');
+  const [birth, setBirth] = useState<Date | null>(null);
   const [stateId, setStateId] = useState<string | null>(null);
   const [cityId, setCityId] = useState<string | null>(null);
 
@@ -80,7 +86,7 @@ export function ProfileScreen() {
     setName(data.name ?? '');
     setPhone(formatPhone(data.phone ?? ''));
     setCpf(formatCPF(data.cpf ?? ''));
-    setBirth(formatDateBr(data.birthdate));
+    setBirth(parseDate(data.birthdate));
     setStateId(data.cityRelation?.stateId ?? null);
     setCityId(data.cityId ?? null);
   }, [data]);
@@ -136,8 +142,7 @@ export function ProfileScreen() {
       phone: onlyDigits(phone),
       cpf: onlyDigits(cpf),
     };
-    const iso = brToIso(birth);
-    if (iso) payload.birthdate = iso;
+    if (birth) payload.birthdate = toYmd(birth);
     if (cityId) payload.cityId = cityId;
     await update.mutateAsync(payload);
     setEditing(false);
@@ -148,7 +153,7 @@ export function ProfileScreen() {
     setName(data.name ?? '');
     setPhone(formatPhone(data.phone ?? ''));
     setCpf(formatCPF(data.cpf ?? ''));
-    setBirth(formatDateBr(data.birthdate));
+    setBirth(parseDate(data.birthdate));
     setStateId(data.cityRelation?.stateId ?? null);
     setCityId(data.cityId ?? null);
   };
@@ -225,16 +230,14 @@ export function ProfileScreen() {
                   placeholder="000.000.000-00"
                 />
               </YStack>
-              <YStack>
-                <Input
-                  label="Nascimento"
-                  accessibilityLabel="Data de nascimento"
-                  icon={<Calendar size={18} color="$text3" />}
-                  value={birth}
-                  onChangeText={setBirth}
-                  placeholder="dd/mm/aaaa"
-                />
-              </YStack>
+              <DateField
+                label="Nascimento"
+                value={birth}
+                onChange={setBirth}
+                accessibilityLabel="Data de nascimento"
+                placeholder="Selecionar data"
+                defaultDate={new Date(2000, 0, 1)}
+              />
               <YStack>
                 <Select
                   label="Estado"

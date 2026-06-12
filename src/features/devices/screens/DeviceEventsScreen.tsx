@@ -15,6 +15,7 @@ import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { DateField } from '@/shared/ui/DateField';
 import { IconButton } from '@/shared/ui/IconButton';
 import { SegmentedControl } from '@/shared/ui/SegmentedControl';
 import { MonoText, Text } from '@/shared/ui/Text';
@@ -25,12 +26,17 @@ import type { IotDeviceEvent, IotEventSeverity } from '../schemas/device.schema'
 import { formatMac } from '../utils/iotConstants';
 import {
   EVENT_PRESETS,
+  getSeverityMeta,
   SEVERITY_META,
   SEVERITY_ORDER,
   translateEventType,
 } from '../utils/iotEvents';
 
 const pad = (n: number) => String(n).padStart(2, '0');
+const dayStartISO = (d: Date) =>
+  new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0).toISOString();
+const dayEndISO = (d: Date) =>
+  new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).toISOString();
 function fmtEventDate(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
@@ -39,7 +45,7 @@ function fmtEventDate(iso: string): string {
 
 function EventRow({ event }: { event: IotDeviceEvent }) {
   const [open, setOpen] = useState(false);
-  const meta = SEVERITY_META[event.severity] ?? SEVERITY_META.I;
+  const meta = getSeverityMeta(event.severity);
   const Icon = meta.Icon;
   const hasMeta = event.metadata != null;
   const metaText =
@@ -115,15 +121,18 @@ export function DeviceEventsScreen() {
 
   const { device, isLoading: isLoadingDevice } = useIotDevice(deviceId);
 
-  const [presetKey, setPresetKey] = useState('7d');
   const [severities, setSeverities] = useState<IotEventSeverity[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
 
-  const { start, end } = useMemo(
-    () => (EVENT_PRESETS.find((p) => p.key === presetKey) ?? EVENT_PRESETS[2]!).range(),
-    [presetKey],
+  const initRange = useMemo(
+    () => EVENT_PRESETS.find((p) => p.key === '7d')!.range(),
+    [],
   );
+  const [activePreset, setActivePreset] = useState<string | null>('7d');
+  const [range, setRange] = useState(initRange);
+  const [fromDate, setFromDate] = useState<Date>(() => new Date(initRange.start));
+  const [toDate, setToDate] = useState<Date>(() => new Date(initRange.end));
 
   const supported =
     device?.deviceType === 'SCC' ||
@@ -133,11 +142,27 @@ export function DeviceEventsScreen() {
   // Load as soon as we have an id; only block once we KNOW it's an unsupported type.
   const { data, isLoading, isError, refetch, isFetching } = useIotDeviceEvents(
     deviceId,
-    { severities, start, end, page, limit, enabled: device == null || supported },
+    {
+      severities,
+      start: range.start,
+      end: range.end,
+      page,
+      limit,
+      enabled: device == null || supported,
+    },
   );
 
-  const setPreset = (k: string) => {
-    setPresetKey(k);
+  const applyPreset = (k: string) => {
+    const r = EVENT_PRESETS.find((p) => p.key === k)!.range();
+    setActivePreset(k);
+    setRange(r);
+    setFromDate(new Date(r.start));
+    setToDate(new Date(r.end));
+    setPage(1);
+  };
+  const applyCustom = () => {
+    setActivePreset(null);
+    setRange({ start: dayStartISO(fromDate), end: dayEndISO(toDate) });
     setPage(1);
   };
   const toggleSeverity = (s: IotEventSeverity) => {
@@ -204,7 +229,7 @@ export function DeviceEventsScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
       >
         {EVENT_PRESETS.map((p) => {
-          const active = p.key === presetKey;
+          const active = p.key === activePreset;
           return (
             <View
               key={p.key}
@@ -214,7 +239,7 @@ export function DeviceEventsScreen() {
               bg={active ? '$brand' : '$surface'}
               borderWidth={1}
               borderColor={active ? '$brand' : '$border'}
-              onPress={() => setPreset(p.key)}
+              onPress={() => applyPreset(p.key)}
               cursor="pointer"
             >
               <Text
@@ -258,13 +283,24 @@ export function DeviceEventsScreen() {
         })}
       </XStack>
 
-      {/* buscar */}
-      <XStack px="$16" pt="$12">
+      {/* custom period */}
+      <XStack px="$16" pt="$12" gap="$10">
+        <DateField
+          label="De"
+          value={fromDate}
+          onChange={setFromDate}
+          accessibilityLabel="Data inicial"
+        />
+        <DateField
+          label="Até"
+          value={toDate}
+          onChange={setToDate}
+          accessibilityLabel="Data final"
+        />
+      </XStack>
+      <XStack px="$16" pt="$10">
         <Button
-          onPress={() => {
-            setPage(1);
-            void refetch();
-          }}
+          onPress={applyCustom}
           disabled={isFetching}
           opacity={isFetching ? 0.7 : 1}
           icon={<Search size={17} color="$white" />}
