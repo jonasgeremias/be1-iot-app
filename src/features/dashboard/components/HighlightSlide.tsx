@@ -1,12 +1,9 @@
-import { Image } from 'react-native';
 import { View, XStack, YStack } from 'tamagui';
 
 import { BrandGradient } from '@/shared/ui/BrandGradient';
 import { MonoText, Text } from '@/shared/ui/Text';
 
 import type { Highlight } from '../schemas/dashboard.schema';
-
-const logo = require('@/assets/images/be1-white.png');
 
 const TAG_BG = {
   feature: '$whiteA20',
@@ -39,12 +36,7 @@ export function HighlightSlide({ item }: { item: Highlight }) {
         />
 
         {item.branded ? (
-          <XStack ai="center" jc="space-between">
-            <Image
-              source={logo}
-              style={{ height: 23, width: 62, resizeMode: 'contain' }}
-              accessibilityLabel="BE1"
-            />
+          <XStack ai="center">
             <View bg={TAG_BG[item.tone]} px="$9" py="$4" br={7}>
               <Text fontSize="$9" fontWeight="800" color="$white" letterSpacing={0.6}>
                 {item.tag}

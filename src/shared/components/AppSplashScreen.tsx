@@ -19,14 +19,6 @@ export function AppSplashScreen() {
       <YStack flex={1} ai="center" jc="center">
         <SplashLogo />
       </YStack>
-      <YStack position="absolute" bottom={70} left={0} right={0} ai="center" gap="$15">
-        <YStack width={150} height={4} br={2} bg="$whiteA20" overflow="hidden">
-          <YStack width="42%" height="100%" br={2} bg="$white" />
-        </YStack>
-        <MonoText color="$whiteA78" fontSize="$11" letterSpacing={1}>
-          CARREGANDO...
-        </MonoText>
-      </YStack>
       <MonoText
         position="absolute"
         bottom={28}

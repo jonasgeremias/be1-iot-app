@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Eye, EyeOff, Mail, Lock } from '@tamagui/lucide-icons';
-import { Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -19,8 +18,6 @@ import { MonoText, Text } from '@/shared/ui/Text';
 import { useLogin } from '../hooks/useLogin';
 import { useRememberedLoginEmail } from '../hooks/useRememberedLoginEmail';
 import { loginSchema, type LoginInput } from '../schemas/auth.schema';
-
-const logo = require('@/assets/images/be1-white.png');
 
 /** Login & authentication (screen 01). */
 export function LoginScreen() {
@@ -81,17 +78,11 @@ export function LoginScreen() {
             borderWidth={1}
             borderColor="$whiteA13"
           />
-          <YStack pt={insets.top + 18} pb="$34" px="$26" ai="center">
-            <Image
-              source={logo}
-              style={{ height: 52, width: 140, resizeMode: 'contain' }}
-              accessibilityLabel="BE1"
-            />
+          <YStack pt={insets.top + 44} pb="$34" px="$26" ai="center">
             <Text
               col="$white"
               fontSize="$21"
               fontWeight="800"
-              mt="$20"
               ta="center"
               letterSpacing={-0.4}
             >

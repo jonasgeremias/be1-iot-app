@@ -21,7 +21,7 @@ type TabMeta = {
 const TABS: Record<string, TabMeta> = {
   index: { label: 'Tempo Real', Icon: Activity },
   history: { label: 'Histórico', Icon: LineChart },
-  events: { label: 'Eventos', Icon: Bell },
+  events: { label: 'Eventos', Icon: Bell, adminOnly: true },
   config: { label: 'Configuração', Icon: SlidersHorizontal, adminOnly: true },
 };
 

@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
   ChevronLeft as ChevronLeftIcon,
+  Lock,
   Search,
 } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
@@ -12,6 +13,7 @@ import { ScrollView, View, XStack, YStack } from 'tamagui';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Screen } from '@/shared/layouts/Screen';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
@@ -135,6 +137,7 @@ export function DeviceEventsScreen() {
   const deviceId = id ?? '';
   const router = useRouter();
 
+  const { isIotAdmin, ready } = usePermissions();
   const { device, isLoading: isLoadingDevice } = useIotDevice(deviceId);
 
   const [severities, setSeverities] = useState<IotEventSeverity[]>([]);
@@ -164,7 +167,7 @@ export function DeviceEventsScreen() {
       end: range.end,
       page,
       limit,
-      enabled: device == null || supported,
+      enabled: ready && isIotAdmin && (device == null || supported),
     },
   );
 
@@ -211,11 +214,28 @@ export function DeviceEventsScreen() {
     </XStack>
   );
 
-  if (isLoadingDevice && !device) {
+  if (!ready || (isLoadingDevice && !device)) {
     return (
       <Screen tabBarSpacing>
         {header}
         <LoadingState />
+      </Screen>
+    );
+  }
+
+  if (!isIotAdmin) {
+    return (
+      <Screen tabBarSpacing>
+        {header}
+        <YStack ai="center" jc="center" p="$32" gap="$12">
+          <Lock size={44} color="$text3" />
+          <Text fontSize={16} fontWeight="700" color="$text" ta="center">
+            Acesso restrito
+          </Text>
+          <Text fontSize={13} color="$text2" ta="center">
+            Apenas administradores podem visualizar os eventos do dispositivo.
+          </Text>
+        </YStack>
       </Screen>
     );
   }
