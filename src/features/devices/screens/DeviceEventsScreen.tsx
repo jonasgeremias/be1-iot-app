@@ -43,6 +43,22 @@ function fmtEventDate(iso: string): string {
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+function getEventKey(event: IotDeviceEvent, index: number): string {
+  const stableParts = [
+    event.id,
+    event.deviceId,
+    event.timeEmitted,
+    event.eventType,
+    event.severity,
+  ]
+    .map((part) => (part == null ? '' : String(part)))
+    .filter(Boolean);
+
+  return stableParts.length > 0
+    ? `${stableParts.join('|')}|${index}`
+    : `device-event-${index}`;
+}
+
 function EventRow({ event }: { event: IotDeviceEvent }) {
   const [open, setOpen] = useState(false);
   const meta = getSeverityMeta(event.severity);
@@ -321,8 +337,8 @@ export function DeviceEventsScreen() {
         />
       ) : (
         <YStack px="$16" pt="$12" gap="$8">
-          {(data?.data ?? []).map((ev: IotDeviceEvent) => (
-            <EventRow key={ev.id} event={ev} />
+          {(data?.data ?? []).map((ev: IotDeviceEvent, index: number) => (
+            <EventRow key={getEventKey(ev, index)} event={ev} />
           ))}
 
           {/* pagination */}

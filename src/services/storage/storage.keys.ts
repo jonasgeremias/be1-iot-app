@@ -6,6 +6,7 @@ export const StorageKeys = {
   userName: 'be1.auth.userName',
   permissions: 'be1.auth.permissions',
   themeMode: 'be1.theme.mode',
+  themePreference: 'be1.theme.preference',
   rememberEmail: 'be1.auth.rememberEmail',
 } as const;
 

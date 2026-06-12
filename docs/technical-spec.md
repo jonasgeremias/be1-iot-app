@@ -19,10 +19,17 @@
 | Server data & cache | TanStack React Query | All requests, caching, refetch, pagination, loading, errors |
 | HTTP client | Axios | REST only |
 | Forms | React Hook Form | `NEVER` use Yup |
+| Form resolver | `@hookform/resolvers` | Zod resolver for React Hook Form |
 | Validation | Zod | Schemas are the source of truth for data types (`z.infer`) |
 | Icons | Lucide React Native | — |
 | Animation / gestures | Reanimated + Gesture Handler | Transitions, bottom sheets, interactive cards, feedback |
 | Local key-value storage | AsyncStorage | Simple prefs, flags, light config. **RECOMMENDED:** store auth tokens in Expo SecureStore / Keychain, not plain AsyncStorage |
+| Secure storage | Expo SecureStore | Auth token / refresh token storage |
+| Safe areas | React Native Safe Area Context | App shell and screen insets |
+| Gradients | Expo Linear Gradient | Token-driven brand gradients only |
+| Image picker | Expo Image Picker | Profile/avatar media selection |
+| Fonts | Expo Font + Expo Google Fonts | App font loading in the root layout |
+| Expo/RN support | Expo Asset, Constants, Linking, Splash Screen, Status Bar, System UI, React Native Screens, React Native SVG, DateTimePicker | Platform support packages used by the approved stack |
 | Offline DB | Realm | Only when structured offline persistence is truly needed (offline device data, sync queue, temporary history) |
 | Realtime | Socket.IO Client | Device status, alerts, live events, dashboard updates |
 

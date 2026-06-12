@@ -16,6 +16,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
 
 import { AppProviders } from '@/providers/AppProviders';
 import { useThemeStore } from '@/store/theme.store';
@@ -24,7 +25,11 @@ void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const hydrate = useThemeStore((s) => s.hydrate);
+  const hydrated = useThemeStore((s) => s.hydrated);
   const mode = useThemeStore((s) => s.mode);
+  const setSystemMode = useThemeStore((s) => s.setSystemMode);
+  const colorScheme = useColorScheme();
+  const systemMode = colorScheme === 'dark' ? 'dark' : 'light';
 
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
@@ -39,14 +44,18 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
+    void hydrate(systemMode);
+  }, [hydrate, systemMode]);
 
   useEffect(() => {
-    if (fontsLoaded) void SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    setSystemMode(systemMode);
+  }, [setSystemMode, systemMode]);
 
-  if (!fontsLoaded) return null;
+  useEffect(() => {
+    if (fontsLoaded && hydrated) void SplashScreen.hideAsync();
+  }, [fontsLoaded, hydrated]);
+
+  if (!fontsLoaded || !hydrated) return null;
 
   return (
     <AppProviders>

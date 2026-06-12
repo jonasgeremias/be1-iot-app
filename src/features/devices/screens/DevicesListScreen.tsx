@@ -1,9 +1,7 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { XStack, YStack } from 'tamagui';
 
-import { queryKeys } from '@/constants/queryKeys.constants';
 import { useDebounce } from '@/hooks/useDebounce';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { ErrorState } from '@/shared/components/ErrorState';
@@ -17,13 +15,14 @@ import { GroupSection } from '../components/GroupSection';
 import { useIotDevices } from '../hooks/useIotDevices';
 import { LATEST_CARD_POLL_MS } from '../hooks/useIotLatestData';
 import { useRefetchCountdown } from '../hooks/useRefetchCountdown';
+import { useRefreshIotDevices } from '../hooks/useRefreshIotDevices';
 import type { IotGroupedEntry } from '../schemas/device.schema';
 import { deviceMatchesSearch } from '../utils/iotConstants';
 
 /** Device monitoring list · grouped by facility (be1-app MonitoringList). */
 export function DevicesListScreen() {
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const refreshNow = useRefreshIotDevices();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 250);
 
@@ -60,10 +59,6 @@ export function DevicesListScreen() {
       ),
     [sortedEntries, debouncedSearch],
   );
-
-  // Instant refresh: refetch the group list AND every card's live snapshot.
-  const refreshNow = () =>
-    void queryClient.invalidateQueries({ queryKey: queryKeys.devices.all });
 
   return (
     <Screen scroll tabBarSpacing>

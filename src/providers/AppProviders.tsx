@@ -4,9 +4,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TamaguiProvider, Theme } from 'tamagui';
 
-import { SplashScreen } from '@/features/auth/screens/SplashScreen';
 import { useSessionBootstrap } from '@/hooks/useSessionBootstrap';
 import { queryClient } from '@/services/api/queryClient';
+import { AppSplashScreen } from '@/shared/components/AppSplashScreen';
 import { useThemeStore } from '@/store/theme.store';
 import { config } from '@/theme';
 
@@ -16,7 +16,7 @@ import { config } from '@/theme';
  */
 function SessionGate({ children }: { children: ReactNode }) {
   const { ready } = useSessionBootstrap();
-  if (!ready) return <SplashScreen />;
+  if (!ready) return <AppSplashScreen />;
   return <>{children}</>;
 }
 

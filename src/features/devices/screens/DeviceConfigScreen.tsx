@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
 import {
   Ban,
   ChevronLeft,
@@ -8,8 +7,6 @@ import {
   SlidersHorizontal,
 } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Alert } from 'react-native';
 import { Spinner, View, XStack, YStack } from 'tamagui';
 
 import { usePermissions } from '@/hooks/usePermissions';
@@ -21,17 +18,11 @@ import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 
 import { SettingsNode } from '../components/SettingsNode';
+import { useDeviceSettings } from '../hooks/useDeviceSettings';
 import { useIotDevice } from '../hooks/useIotDevice';
-import { deviceService } from '../services/device.service';
 import { formatMac } from '../utils/iotConstants';
-import {
-  countLeaves,
-  deepDiff,
-  setPath,
-  type SettingsTree,
-} from '../utils/settingsTree';
 
-/** Device configuration · remote settings tree (admin only, SCC/PP/BULK). */
+/** Device configuration: remote settings tree (admin only, SCC/PP/BULK). */
 export function DeviceConfigScreen() {
   const { id } = useGlobalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
@@ -39,84 +30,7 @@ export function DeviceConfigScreen() {
 
   const { isIotAdmin, ready } = usePermissions();
   const { device, isLoading: isLoadingDevice } = useIotDevice(deviceId);
-
-  const [fetched, setFetched] = useState<SettingsTree | null>(null);
-  const [edited, setEdited] = useState<SettingsTree>({});
-  const [hash, setHash] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const fetchMut = useMutation({
-    mutationFn: () => deviceService.getDeviceSettings(deviceId),
-    onSuccess: (res) => {
-      if (res.error) {
-        setErrorMsg(res.message || 'Erro ao buscar configurações.');
-        return;
-      }
-      setFetched(res.data.settings);
-      setEdited(res.data.settings);
-      setHash(res.data.hash);
-      setErrorMsg(null);
-    },
-    onError: () =>
-      setErrorMsg('Erro de comunicação. Verifique se o dispositivo está online.'),
-  });
-
-  const saveMut = useMutation({
-    mutationFn: (diff: SettingsTree) =>
-      deviceService.putDeviceSettings({ deviceId, settings: diff, hash: hash! }),
-    onSuccess: (res) => {
-      const apiErr = res.error || res.data.error;
-      if (apiErr) {
-        const m = (res.data.error ?? res.message) || '';
-        setErrorMsg(
-          /hash/i.test(m)
-            ? 'Configurações desatualizadas (outra alteração foi aplicada). Toque em Buscar e tente novamente.'
-            : m || 'Falha ao aplicar configurações.',
-        );
-        return;
-      }
-      const applied = res.data.settings;
-      if (applied && Object.keys(applied).length > 0) {
-        setFetched(applied);
-        setEdited(applied);
-      } else {
-        setFetched(edited);
-      }
-      setHash(res.data.hash);
-      setErrorMsg(null);
-    },
-    onError: () => setErrorMsg('Erro de comunicação ao salvar.'),
-  });
-
-  const changedDiff = fetched ? deepDiff(fetched, edited) : {};
-  const changedCount = countLeaves(changedDiff);
-
-  const onChange = (path: string[], value: unknown) =>
-    setEdited((prev) => setPath(prev, path, value));
-
-  const handleFetch = () => {
-    if (changedCount > 0) {
-      Alert.alert(
-        'Descartar alterações?',
-        `Você tem ${changedCount} campo(s) alterado(s).`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Descartar e buscar',
-            style: 'destructive',
-            onPress: () => fetchMut.mutate(),
-          },
-        ],
-      );
-    } else {
-      fetchMut.mutate();
-    }
-  };
-
-  const handleSave = () => {
-    if (!hash || changedCount === 0) return;
-    saveMut.mutate(changedDiff);
-  };
+  const settings = useDeviceSettings(deviceId);
 
   const supported =
     device?.deviceType === 'SCC' ||
@@ -130,7 +44,7 @@ export function DeviceConfigScreen() {
       </IconButton>
       <YStack flex={1} minWidth={0}>
         <Text fontSize="$19" fontWeight="800" color="$text" letterSpacing={-0.3}>
-          Configuração
+          Configuracao
         </Text>
         {device ? (
           <Text fontSize="$11" color="$text3" numberOfLines={1}>
@@ -141,7 +55,6 @@ export function DeviceConfigScreen() {
     </XStack>
   );
 
-  // ── gates ────────────────────────────────────────────────────────────────
   if (!ready || (isLoadingDevice && !device)) {
     return (
       <Screen tabBarSpacing>
@@ -175,7 +88,7 @@ export function DeviceConfigScreen() {
         <YStack ai="center" jc="center" p="$32" gap="$12">
           <Ban size={44} color="$text3" />
           <Text fontSize={15} ta="center" color="$text2">
-            Configuração não disponível para este tipo de dispositivo.
+            Configuracao nao disponivel para este tipo de dispositivo.
           </Text>
         </YStack>
       </Screen>
@@ -186,86 +99,88 @@ export function DeviceConfigScreen() {
     <Screen scroll tabBarSpacing>
       {header}
 
-      {errorMsg ? (
+      {settings.errorMsg ? (
         <YStack px="$16" pb="$8">
           <View bg="$redSoft" br={10} p="$10">
             <Text fontSize={12} color="$red">
-              {errorMsg}
+              {settings.errorMsg}
             </Text>
           </View>
         </YStack>
       ) : null}
 
-      {!fetched ? (
+      {!settings.fetched ? (
         <YStack px="$16" pt="$12" gap="$12">
           <Card radius={16} elevated p="$16" ai="center" gap="$12">
             <View width={56} height={56} br={28} bg="$brandSoft" ai="center" jc="center">
               <SlidersHorizontal size={26} color="$brand" />
             </View>
             <Text fontSize={14} color="$text2" ta="center">
-              As configurações são lidas do dispositivo via MQTT. Toque em
+              As configuracoes sao lidas do dispositivo via MQTT. Toque em
               Buscar para carregar.
             </Text>
             <Button
-              onPress={() => fetchMut.mutate()}
-              disabled={fetchMut.isPending}
-              opacity={fetchMut.isPending ? 0.7 : 1}
+              onPress={settings.fetchNow}
+              disabled={settings.isFetching}
+              opacity={settings.isFetching ? 0.7 : 1}
               icon={
-                fetchMut.isPending ? (
+                settings.isFetching ? (
                   <Spinner color="$white" />
                 ) : (
                   <RefreshCw size={17} color="$white" />
                 )
               }
             >
-              {fetchMut.isPending ? 'Carregando…' : 'Buscar configurações'}
+              {settings.isFetching ? 'Carregando...' : 'Buscar configuracoes'}
             </Button>
           </Card>
         </YStack>
       ) : (
         <YStack px="$16" pt="$4" gap="$12">
-          {/* action bar */}
           <YStack gap="$8">
-            <Text fontSize={12} fontWeight="700" color={changedCount ? '$brand' : '$text3'}>
-              {changedCount} campo(s) alterado(s)
+            <Text
+              fontSize={12}
+              fontWeight="700"
+              color={settings.changedCount ? '$brand' : '$text3'}
+            >
+              {settings.changedCount} campo(s) alterado(s)
             </Text>
             <XStack gap="$10">
               <Button
                 variant="outline"
                 flex={1}
-                onPress={handleFetch}
-                disabled={fetchMut.isPending}
+                onPress={settings.fetch}
+                disabled={settings.isFetching}
                 icon={<RefreshCw size={16} color="$text" />}
               >
-                {fetchMut.isPending ? 'Buscando…' : 'Buscar'}
+                {settings.isFetching ? 'Buscando...' : 'Buscar'}
               </Button>
               <Button
                 flex={1}
-                onPress={handleSave}
-                disabled={changedCount === 0 || saveMut.isPending}
-                opacity={changedCount === 0 || saveMut.isPending ? 0.6 : 1}
+                onPress={settings.save}
+                disabled={settings.changedCount === 0 || settings.isSaving}
+                opacity={settings.changedCount === 0 || settings.isSaving ? 0.6 : 1}
                 icon={
-                  saveMut.isPending ? (
+                  settings.isSaving ? (
                     <Spinner color="$white" />
                   ) : (
                     <Save size={16} color="$white" />
                   )
                 }
               >
-                {saveMut.isPending ? 'Salvando…' : 'Salvar'}
+                {settings.isSaving ? 'Salvando...' : 'Salvar'}
               </Button>
             </XStack>
           </YStack>
 
-          {/* settings sections */}
-          {Object.keys(edited).map((sectionKey) => (
+          {Object.keys(settings.edited).map((sectionKey) => (
             <Card key={sectionKey} radius={16} elevated p="$12">
               <SettingsNode
                 keyName={sectionKey}
-                value={edited[sectionKey]}
-                original={fetched?.[sectionKey]}
+                value={settings.edited[sectionKey]}
+                original={settings.fetched?.[sectionKey]}
                 path={[sectionKey]}
-                onChange={onChange}
+                onChange={settings.onChange}
                 depth={0}
               />
             </Card>

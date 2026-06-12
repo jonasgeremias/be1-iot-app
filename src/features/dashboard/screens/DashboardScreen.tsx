@@ -14,7 +14,6 @@ import { Card } from '@/shared/ui/Card';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 import { useCurrentUserName } from '@/hooks/useCurrentUserName';
-import { useDeviceCounts } from '@/hooks/useDeviceCounts';
 import { monogramOf } from '@/utils/format.util';
 import { getGreeting } from '@/utils/greeting.util';
 
@@ -29,7 +28,6 @@ export function DashboardScreen() {
   const summary = useDashboardSummary();
   const highlights = useHighlights();
   const userName = useCurrentUserName();
-  const { deviceCount, groupCount } = useDeviceCounts();
   const [notifOpen, setNotifOpen] = useState(false);
 
   if (summary.isError || highlights.isError) {
@@ -57,6 +55,8 @@ export function DashboardScreen() {
   const displayName = userName?.trim() || s.accountName;
   const greeting = getGreeting();
   const monogram = userName?.trim() ? monogramOf(userName) : s.monogram;
+  const deviceCount = s.deviceCount;
+  const groupCount = s.groupCount;
 
   return (
     <Screen scroll tabBarSpacing>
