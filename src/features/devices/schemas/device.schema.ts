@@ -77,14 +77,14 @@ export type ChamberSnapshot = z.infer<typeof chamberSnapshotSchema>;
 export const cb200SnapshotSchema = z.object({
   time: z.string(),
   serverTime: z.string().optional(),
-  temperature: z.number(),
-  humidity: z.number(),
-  blower: z.boolean(),
+  temperature: z.number().nullable(),
+  humidity: z.number().nullable(),
+  blower: z.boolean().nullable(),
   celsius: z.boolean().optional(),
-  phase: z.number(),
-  climate: z.number(),
-  stTemperature: z.number(),
-  stHumidity: z.number(),
+  phase: z.number().nullable(),
+  climate: z.number().nullable(),
+  stTemperature: z.number().nullable(),
+  stHumidity: z.number().nullable(),
 });
 export type Cb200Snapshot = z.infer<typeof cb200SnapshotSchema>;
 
@@ -123,8 +123,8 @@ export type LatestData = z.infer<typeof latestDataSchema>;
 // ── SCC history (GET /iot/device/data → { data: Record<chamber, points> }) ────
 export const historyPointSchema = z.object({
   time: z.string(),
-  temperature: z.number(),
-  humidity: z.number(),
+  temperature: z.number().nullable(),
+  humidity: z.number().nullable(),
 });
 export type HistoryPoint = z.infer<typeof historyPointSchema>;
 
@@ -147,24 +147,24 @@ export type Cb200Resolution = z.infer<typeof cb200ResolutionSchema>;
 export const cb200DataPointSchema = z.object({
   time: z.string(),
   serverTime: z.string().optional(),
-  temperature: z.number(),
-  stTemperature: z.number(),
-  humidity: z.number(),
-  stHumidity: z.number(),
-  blower: z.boolean(),
-  phase: z.number(),
-  climate: z.number(),
+  temperature: z.number().nullable(),
+  stTemperature: z.number().nullable(),
+  humidity: z.number().nullable(),
+  stHumidity: z.number().nullable(),
+  blower: z.boolean().nullable(),
+  phase: z.number().nullable(),
+  climate: z.number().nullable(),
 });
 export type Cb200DataPoint = {
   time: string;
   serverTime?: string;
-  temperature: number;
-  stTemperature: number;
-  humidity: number;
-  stHumidity: number;
-  blower: boolean;
-  phase: number;
-  climate: number;
+  temperature: number | null;
+  stTemperature: number | null;
+  humidity: number | null;
+  stHumidity: number | null;
+  blower: boolean | null;
+  phase: number | null;
+  climate: number | null;
 };
 
 export const bulkHistoryResponseSchema = z.object({
@@ -182,6 +182,64 @@ export type BulkHistoryResponse = {
   last: string | null;
   count: number;
   data: Cb200DataPoint[];
+};
+
+// ── device events (GET /iot/device/events) ───────────────────────────────────
+export const iotEventSeveritySchema = z.enum(['I', 'W', 'E', 'C']);
+export type IotEventSeverity = z.infer<typeof iotEventSeveritySchema>;
+
+export const iotDeviceEventSchema = z.object({
+  id: z.string(),
+  deviceId: z.string().optional().default(''),
+  timeEmitted: z.string(),
+  severity: iotEventSeveritySchema.catch('I'),
+  eventType: z.string(),
+  metadata: z.unknown().optional(),
+});
+export type IotDeviceEvent = {
+  id: string;
+  deviceId: string;
+  timeEmitted: string;
+  severity: IotEventSeverity;
+  eventType: string;
+  metadata?: unknown;
+};
+
+export const iotDeviceEventsResponseSchema = z.object({
+  total: z.number().optional().default(0),
+  page: z.number().optional().default(1),
+  limit: z.number().optional().default(25),
+  data: z.array(iotDeviceEventSchema),
+});
+export type IotDeviceEventsResponse = {
+  total: number;
+  page: number;
+  limit: number;
+  data: IotDeviceEvent[];
+};
+
+// ── device settings tree (GET/PUT /iot/device/settings) ───────────────────────
+export const iotDeviceSettingsResponseSchema = z.object({
+  error: z.boolean().optional().default(false),
+  message: z.string().optional().default(''),
+  data: z.object({
+    settings: z.record(z.string(), z.unknown()),
+    hash: z.string(),
+    applied: z.boolean().optional(),
+    id: z.string().optional(),
+    error: z.string().nullish(),
+  }),
+});
+export type IotDeviceSettingsResponse = {
+  error: boolean;
+  message: string;
+  data: {
+    settings: Record<string, unknown>;
+    hash: string;
+    applied?: boolean;
+    id?: string;
+    error?: string | null;
+  };
 };
 
 // ── device configuration (Configuração tab — kept on mock, no IoT endpoint) ──

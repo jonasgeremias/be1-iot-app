@@ -1,7 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { XStack, YStack } from 'tamagui';
 
+import { queryKeys } from '@/constants/queryKeys.constants';
+import { useDebounce } from '@/hooks/useDebounce';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
@@ -11,15 +14,18 @@ import { Text } from '@/shared/ui/Text';
 
 import { CircularCountdown } from '../components/CircularCountdown';
 import { GroupSection } from '../components/GroupSection';
-import type { IotGroupedEntry } from '../schemas/device.schema';
 import { useIotDevices } from '../hooks/useIotDevices';
 import { LATEST_CARD_POLL_MS } from '../hooks/useIotLatestData';
 import { useRefetchCountdown } from '../hooks/useRefetchCountdown';
+import type { IotGroupedEntry } from '../schemas/device.schema';
+import { deviceMatchesSearch } from '../utils/iotConstants';
 
 /** Device monitoring list · grouped by facility (be1-app MonitoringList). */
 export function DevicesListScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 250);
 
   const { grouped, isLoading, isError, refetch, dataUpdatedAt } =
     useIotDevices(LATEST_CARD_POLL_MS);
@@ -42,6 +48,23 @@ export function DevicesListScreen() {
 
   const hasAnyDevices = sortedEntries.some(([, e]) => e.devices.length > 0);
 
+  // Devices actually visible under the current search (drives the empty state).
+  const visibleCount = useMemo(
+    () =>
+      sortedEntries.reduce(
+        (acc, [, e]) =>
+          acc +
+          e.devices.filter((d) => deviceMatchesSearch(d, debouncedSearch))
+            .length,
+        0,
+      ),
+    [sortedEntries, debouncedSearch],
+  );
+
+  // Instant refresh: refetch the group list AND every card's live snapshot.
+  const refreshNow = () =>
+    void queryClient.invalidateQueries({ queryKey: queryKeys.devices.all });
+
   return (
     <Screen scroll tabBarSpacing>
       <YStack px="$16" pt="$4" pb="$12">
@@ -53,7 +76,8 @@ export function DevicesListScreen() {
             secondsLeft={secondsLeft}
             totalSeconds={totalSeconds}
             progress={progress}
-            onPress={() => void refetch()}
+            clickDelaySec={0}
+            onPress={refreshNow}
           />
         </XStack>
         {hasAnyDevices ? (
@@ -76,13 +100,18 @@ export function DevicesListScreen() {
           title="Nenhum dispositivo"
           description="Nenhum dispositivo encontrado para esta conta."
         />
+      ) : visibleCount === 0 ? (
+        <EmptyState
+          title="Nenhum resultado"
+          description={`Nada encontrado para “${debouncedSearch.trim()}”.`}
+        />
       ) : (
         <YStack px="$16">
           {sortedEntries.map(([key, entry]) => (
             <GroupSection
               key={key}
               entry={entry}
-              searchQuery={search}
+              searchQuery={debouncedSearch}
               onDevicePress={(device) => router.push(`/device/${device.id}`)}
             />
           ))}

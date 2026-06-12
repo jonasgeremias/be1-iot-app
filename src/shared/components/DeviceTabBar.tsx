@@ -1,29 +1,43 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Activity, LineChart, SlidersHorizontal } from '@tamagui/lucide-icons';
+import {
+  Activity,
+  Bell,
+  LineChart,
+  SlidersHorizontal,
+} from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, XStack, YStack } from 'tamagui';
 
+import { usePermissions } from '@/hooks/usePermissions';
 import { Text } from '@/shared/ui/Text';
 
 type TabMeta = {
   label: string;
   Icon: typeof Activity;
+  /** Only shown to IoT admins. */
+  adminOnly?: boolean;
 };
 
 const TABS: Record<string, TabMeta> = {
   index: { label: 'Tempo Real', Icon: Activity },
-  config: { label: 'Configuração', Icon: SlidersHorizontal },
   history: { label: 'Histórico', Icon: LineChart },
+  events: { label: 'Eventos', Icon: Bell },
+  config: { label: 'Configuração', Icon: SlidersHorizontal, adminOnly: true },
 };
 
-const ORDER = ['index', 'config', 'history'];
+const ORDER = ['index', 'history', 'events', 'config'];
 
-/**
- * Device-detail bottom tabs (the prototype's `DevTabs`): full-width chips that
- * fill with brand-soft when active.
- */
+/** Device-detail bottom tabs. The Configuração tab is admin-only. */
 export function DeviceTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { isIotAdmin } = usePermissions();
+
+  const visible = ORDER.filter((name) => {
+    const meta = TABS[name];
+    if (!meta) return false;
+    return !meta.adminOnly || isIotAdmin;
+  });
+
   return (
     <XStack
       ai="stretch"
@@ -36,9 +50,8 @@ export function DeviceTabBar({ state, navigation }: BottomTabBarProps) {
       px="$14"
       pb={14 + insets.bottom}
     >
-      {ORDER.map((name) => {
-        const meta = TABS[name];
-        if (!meta) return null;
+      {visible.map((name) => {
+        const meta = TABS[name]!;
         const routeIndex = state.routes.findIndex((r) => r.name === name);
         const route = state.routes[routeIndex];
         if (!route) return null;

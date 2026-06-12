@@ -1,196 +1,277 @@
-import { Check, ChevronRight, Wifi } from '@tamagui/lucide-icons';
+import { useMutation } from '@tanstack/react-query';
+import {
+  Ban,
+  ChevronLeft,
+  Lock,
+  RefreshCw,
+  Save,
+  SlidersHorizontal,
+} from '@tamagui/lucide-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { XStack, YStack } from 'tamagui';
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import { Spinner, View, XStack, YStack } from 'tamagui';
 
-import { ErrorState } from '@/shared/components/ErrorState';
+import { usePermissions } from '@/hooks/usePermissions';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
-import { AppHeader } from '@/shared/components/AppHeader';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
-import { Separator } from '@/shared/ui/Separator';
-import { StatusBadge } from '@/shared/ui/StatusBadge';
-import { Stepper } from '@/shared/ui/Stepper';
-import { Switch } from '@/shared/ui/Switch';
-import { MonoText, Text } from '@/shared/ui/Text';
+import { IconButton } from '@/shared/ui/IconButton';
+import { Text } from '@/shared/ui/Text';
 
-import { SettingRow } from '../components/SettingRow';
-import { useDeviceConfig } from '../hooks/useDeviceConfig';
+import { SettingsNode } from '../components/SettingsNode';
+import { useIotDevice } from '../hooks/useIotDevice';
+import { deviceService } from '../services/device.service';
+import { formatMac } from '../utils/iotConstants';
+import {
+  countLeaves,
+  deepDiff,
+  setPath,
+  type SettingsTree,
+} from '../utils/settingsTree';
 
-function clamp(v: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, v));
-}
-
-function CardLabel({ children }: { children: string }) {
-  return (
-    <Text
-      fontSize="$10.5"
-      fontWeight="800"
-      color="$text3"
-      letterSpacing={0.6}
-      px="$15"
-      pt="$13"
-      pb="$5"
-    >
-      {children}
-    </Text>
-  );
-}
-
-/** Device detail · configuração (screen 09). */
+/** Device configuration · remote settings tree (admin only, SCC/PP/BULK). */
 export function DeviceConfigScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const deviceId = id ?? '';
   const router = useRouter();
-  const { data, isLoading, isError, refetch } = useDeviceConfig(id ?? '');
 
-  const [temp, setTemp] = useState(80);
-  const [humidity, setHumidity] = useState(70);
-  const [blowerAuto, setBlowerAuto] = useState(true);
+  const { isIotAdmin, ready } = usePermissions();
+  const { device, isLoading: isLoadingDevice } = useIotDevice(deviceId);
 
-  useEffect(() => {
-    if (data) {
-      setTemp(data.tempTarget);
-      setHumidity(data.humidityTarget);
-      setBlowerAuto(data.blowerAuto);
+  const [fetched, setFetched] = useState<SettingsTree | null>(null);
+  const [edited, setEdited] = useState<SettingsTree>({});
+  const [hash, setHash] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const fetchMut = useMutation({
+    mutationFn: () => deviceService.getDeviceSettings(deviceId),
+    onSuccess: (res) => {
+      if (res.error) {
+        setErrorMsg(res.message || 'Erro ao buscar configurações.');
+        return;
+      }
+      setFetched(res.data.settings);
+      setEdited(res.data.settings);
+      setHash(res.data.hash);
+      setErrorMsg(null);
+    },
+    onError: () =>
+      setErrorMsg('Erro de comunicação. Verifique se o dispositivo está online.'),
+  });
+
+  const saveMut = useMutation({
+    mutationFn: (diff: SettingsTree) =>
+      deviceService.putDeviceSettings({ deviceId, settings: diff, hash: hash! }),
+    onSuccess: (res) => {
+      const apiErr = res.error || res.data.error;
+      if (apiErr) {
+        const m = (res.data.error ?? res.message) || '';
+        setErrorMsg(
+          /hash/i.test(m)
+            ? 'Configurações desatualizadas (outra alteração foi aplicada). Toque em Buscar e tente novamente.'
+            : m || 'Falha ao aplicar configurações.',
+        );
+        return;
+      }
+      const applied = res.data.settings;
+      if (applied && Object.keys(applied).length > 0) {
+        setFetched(applied);
+        setEdited(applied);
+      } else {
+        setFetched(edited);
+      }
+      setHash(res.data.hash);
+      setErrorMsg(null);
+    },
+    onError: () => setErrorMsg('Erro de comunicação ao salvar.'),
+  });
+
+  const changedDiff = fetched ? deepDiff(fetched, edited) : {};
+  const changedCount = countLeaves(changedDiff);
+
+  const onChange = (path: string[], value: unknown) =>
+    setEdited((prev) => setPath(prev, path, value));
+
+  const handleFetch = () => {
+    if (changedCount > 0) {
+      Alert.alert(
+        'Descartar alterações?',
+        `Você tem ${changedCount} campo(s) alterado(s).`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Descartar e buscar',
+            style: 'destructive',
+            onPress: () => fetchMut.mutate(),
+          },
+        ],
+      );
+    } else {
+      fetchMut.mutate();
     }
-  }, [data]);
+  };
 
-  if (isError) {
+  const handleSave = () => {
+    if (!hash || changedCount === 0) return;
+    saveMut.mutate(changedDiff);
+  };
+
+  const supported =
+    device?.deviceType === 'SCC' ||
+    device?.deviceType === 'PP' ||
+    device?.deviceType === 'BULK';
+
+  const header = (
+    <XStack px="$16" pt="$4" pb="$8" ai="center" gap="$12">
+      <IconButton accessibilityLabel="Voltar" onPress={() => router.back()}>
+        <ChevronLeft size={19} color="$text" />
+      </IconButton>
+      <YStack flex={1} minWidth={0}>
+        <Text fontSize="$19" fontWeight="800" color="$text" letterSpacing={-0.3}>
+          Configuração
+        </Text>
+        {device ? (
+          <Text fontSize="$11" color="$text3" numberOfLines={1}>
+            {device.nickname || formatMac(device.macAddress)}
+          </Text>
+        ) : null}
+      </YStack>
+    </XStack>
+  );
+
+  // ── gates ────────────────────────────────────────────────────────────────
+  if (!ready || (isLoadingDevice && !device)) {
     return (
       <Screen tabBarSpacing>
-        <ErrorState onRetry={() => void refetch()} />
+        {header}
+        <LoadingState />
       </Screen>
     );
   }
-  if (isLoading || !data) {
+
+  if (!isIotAdmin) {
     return (
       <Screen tabBarSpacing>
-        <LoadingState />
+        {header}
+        <YStack ai="center" jc="center" p="$32" gap="$12">
+          <Lock size={44} color="$text3" />
+          <Text fontSize={16} fontWeight="700" color="$text" ta="center">
+            Acesso restrito
+          </Text>
+          <Text fontSize={13} color="$text2" ta="center">
+            Apenas administradores podem configurar o dispositivo.
+          </Text>
+        </YStack>
+      </Screen>
+    );
+  }
+
+  if (device && !supported) {
+    return (
+      <Screen tabBarSpacing>
+        {header}
+        <YStack ai="center" jc="center" p="$32" gap="$12">
+          <Ban size={44} color="$text3" />
+          <Text fontSize={15} ta="center" color="$text2">
+            Configuração não disponível para este tipo de dispositivo.
+          </Text>
+        </YStack>
       </Screen>
     );
   }
 
   return (
     <Screen scroll tabBarSpacing>
-      <AppHeader
-        title={data.name}
-        titleSize="$18"
-        subtitle={`${data.model} · ${data.mac}`}
-        subtitleMono
-        onBack={() => router.back()}
-        right={<StatusBadge status={data.status} />}
-      />
+      {header}
 
-      <YStack px="$16" gap="$12" pt="$2">
-        {/* Setpoints */}
-        <Card radius={18} elevated>
-          <CardLabel>SETPOINTS</CardLabel>
-          <SettingRow
-            title="Temperatura alvo"
-            subtitle={`Faixa ${data.tempMin} – ${data.tempMax} °C`}
-            right={
-              <Stepper
-                accessibilityLabel="Temperatura alvo"
-                displayValue={`${temp}°C`}
-                onDecrement={() => setTemp((v) => clamp(v - 1, data.tempMin, data.tempMax))}
-                onIncrement={() => setTemp((v) => clamp(v + 1, data.tempMin, data.tempMax))}
-              />
-            }
-          />
-          <Separator mx="$15" />
-          <SettingRow
-            title="Umidade alvo"
-            subtitle={`Faixa ${data.humidityMin} – ${data.humidityMax} %`}
-            right={
-              <Stepper
-                accessibilityLabel="Umidade alvo"
-                displayValue={`${humidity}%`}
-                onDecrement={() =>
-                  setHumidity((v) => clamp(v - 1, data.humidityMin, data.humidityMax))
+      {errorMsg ? (
+        <YStack px="$16" pb="$8">
+          <View bg="$redSoft" br={10} p="$10">
+            <Text fontSize={12} color="$red">
+              {errorMsg}
+            </Text>
+          </View>
+        </YStack>
+      ) : null}
+
+      {!fetched ? (
+        <YStack px="$16" pt="$12" gap="$12">
+          <Card radius={16} elevated p="$16" ai="center" gap="$12">
+            <View width={56} height={56} br={28} bg="$brandSoft" ai="center" jc="center">
+              <SlidersHorizontal size={26} color="$brand" />
+            </View>
+            <Text fontSize={14} color="$text2" ta="center">
+              As configurações são lidas do dispositivo via MQTT. Toque em
+              Buscar para carregar.
+            </Text>
+            <Button
+              onPress={() => fetchMut.mutate()}
+              disabled={fetchMut.isPending}
+              opacity={fetchMut.isPending ? 0.7 : 1}
+              icon={
+                fetchMut.isPending ? (
+                  <Spinner color="$white" />
+                ) : (
+                  <RefreshCw size={17} color="$white" />
+                )
+              }
+            >
+              {fetchMut.isPending ? 'Carregando…' : 'Buscar configurações'}
+            </Button>
+          </Card>
+        </YStack>
+      ) : (
+        <YStack px="$16" pt="$4" gap="$12">
+          {/* action bar */}
+          <YStack gap="$8">
+            <Text fontSize={12} fontWeight="700" color={changedCount ? '$brand' : '$text3'}>
+              {changedCount} campo(s) alterado(s)
+            </Text>
+            <XStack gap="$10">
+              <Button
+                variant="outline"
+                flex={1}
+                onPress={handleFetch}
+                disabled={fetchMut.isPending}
+                icon={<RefreshCw size={16} color="$text" />}
+              >
+                {fetchMut.isPending ? 'Buscando…' : 'Buscar'}
+              </Button>
+              <Button
+                flex={1}
+                onPress={handleSave}
+                disabled={changedCount === 0 || saveMut.isPending}
+                opacity={changedCount === 0 || saveMut.isPending ? 0.6 : 1}
+                icon={
+                  saveMut.isPending ? (
+                    <Spinner color="$white" />
+                  ) : (
+                    <Save size={16} color="$white" />
+                  )
                 }
-                onIncrement={() =>
-                  setHumidity((v) => clamp(v + 1, data.humidityMin, data.humidityMax))
-                }
+              >
+                {saveMut.isPending ? 'Salvando…' : 'Salvar'}
+              </Button>
+            </XStack>
+          </YStack>
+
+          {/* settings sections */}
+          {Object.keys(edited).map((sectionKey) => (
+            <Card key={sectionKey} radius={16} elevated p="$12">
+              <SettingsNode
+                keyName={sectionKey}
+                value={edited[sectionKey]}
+                original={fetched?.[sectionKey]}
+                path={[sectionKey]}
+                onChange={onChange}
+                depth={0}
               />
-            }
-          />
-        </Card>
-
-        {/* Operational */}
-        <Card radius={18} elevated>
-          <CardLabel>OPERACIONAL</CardLabel>
-          <SettingRow
-            title="Soprador automático"
-            subtitle={blowerAuto ? 'Ativado' : 'Desativado'}
-            subtitleColor="$online"
-            right={
-              <Switch
-                value={blowerAuto}
-                onValueChange={setBlowerAuto}
-                accessibilityLabel="Soprador automático"
-              />
-            }
-          />
-          <Separator mx="$15" />
-          <SettingRow
-            title="Intervalo de leitura"
-            onPress={() => {}}
-            right={
-              <XStack ai="center" gap="$8">
-                <MonoText fontSize="$13" fontWeight="700" color="$text2">
-                  {data.readingInterval}
-                </MonoText>
-                <ChevronRight size={16} color="$text3" />
-              </XStack>
-            }
-          />
-          <Separator mx="$15" />
-          <SettingRow
-            title="Fase de secagem"
-            onPress={() => {}}
-            right={
-              <XStack ai="center" gap="$8">
-                <Text fontSize="$13" fontWeight="700" color="$text2">
-                  {data.dryingPhase}
-                </Text>
-                <ChevronRight size={16} color="$text3" />
-              </XStack>
-            }
-          />
-        </Card>
-
-        {/* Network */}
-        <Card radius={18} elevated>
-          <CardLabel>REDE</CardLabel>
-          <SettingRow
-            title="Wi‑Fi"
-            leadingIcon={<Wifi size={17} color="$online" />}
-            right={
-              <Text fontSize="$13" fontWeight="700" color="$text2">
-                {data.wifi}
-              </Text>
-            }
-          />
-          <Separator mx="$15" />
-          <SettingRow
-            title="Endereço IP"
-            right={
-              <MonoText fontSize="$13" fontWeight="700" color="$text2">
-                {data.ip}
-              </MonoText>
-            }
-          />
-        </Card>
-
-        <Button
-          height={50}
-          icon={<Check size={17} color="$white" />}
-          accessibilityLabel="Aplicar alterações"
-        >
-          Aplicar alterações
-        </Button>
-      </YStack>
+            </Card>
+          ))}
+        </YStack>
+      )}
     </Screen>
   );
 }

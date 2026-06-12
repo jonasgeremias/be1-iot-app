@@ -7,16 +7,31 @@ import {
   bulkHistoryResponseSchema,
   deviceConfigSchema,
   deviceHistorySchema,
+  iotDeviceEventsResponseSchema,
   iotDeviceSchema,
+  iotDeviceSettingsResponseSchema,
   iotDevicesGroupedSchema,
   latestDataSchema,
   type BulkHistoryResponse,
   type DeviceConfig,
   type DeviceHistory,
   type IotDevice,
+  type IotDeviceEventsResponse,
+  type IotDeviceSettingsResponse,
   type IotDevicesGrouped,
+  type IotEventSeverity,
   type LatestData,
 } from '../schemas/device.schema';
+
+/** Filters for GET /iot/device/events. */
+export type DeviceEventsParams = {
+  device: string;
+  start?: string;
+  end?: string;
+  severity?: IotEventSeverity[];
+  page?: number;
+  limit?: number;
+};
 
 /**
  * Real device IO over the be1-app IoT endpoints. Validation is resilient: a
@@ -73,6 +88,49 @@ export const deviceService = {
       params: { device: deviceId, start, end },
     });
     return parseOr(bulkHistoryResponseSchema, data, 'bulkHistory') as BulkHistoryResponse;
+  },
+
+  /** GET /iot/device/events — paginated device events (SCC/PP/BULK). */
+  async getDeviceEvents(
+    params: DeviceEventsParams,
+  ): Promise<IotDeviceEventsResponse> {
+    const { data } = await apiClient.get('/iot/device/events', { params });
+    return parseOr(
+      iotDeviceEventsResponseSchema,
+      data,
+      'events',
+    ) as IotDeviceEventsResponse;
+  },
+
+  /** GET /iot/device/settings — remote settings tree (admin). */
+  async getDeviceSettings(
+    deviceId: string,
+    timeoutMs?: number,
+  ): Promise<IotDeviceSettingsResponse> {
+    const { data } = await apiClient.get('/iot/device/settings', {
+      params: { deviceId, ...(timeoutMs != null ? { timeoutMs } : {}) },
+      headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+    });
+    return parseOr(
+      iotDeviceSettingsResponseSchema,
+      data,
+      'settings',
+    ) as IotDeviceSettingsResponse;
+  },
+
+  /** PUT /iot/device/settings — apply a settings patch (admin). */
+  async putDeviceSettings(payload: {
+    deviceId: string;
+    settings: Record<string, unknown>;
+    hash: string;
+    timeoutMs?: number;
+  }): Promise<IotDeviceSettingsResponse> {
+    const { data } = await apiClient.put('/iot/device/settings', payload);
+    return parseOr(
+      iotDeviceSettingsResponseSchema,
+      data,
+      'settings',
+    ) as IotDeviceSettingsResponse;
   },
 
   /** PUT /iot/devices/:id — rename a device. */

@@ -1,1 +1,1 @@
-export { DeviceHistoryScreen as default } from '@/features/reports/screens/DeviceHistoryScreen';
+export { DeviceHistoryScreen as default } from '@/features/devices/screens/DeviceHistoryScreen';

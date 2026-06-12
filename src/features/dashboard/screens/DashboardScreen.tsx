@@ -1,4 +1,4 @@
-import { Bell, Clock, Rss } from '@tamagui/lucide-icons';
+import { Bell, Rss } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { View, XStack, YStack } from 'tamagui';
 
@@ -10,6 +10,7 @@ import { Avatar } from '@/shared/ui/Avatar';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 import { useCurrentUserName } from '@/hooks/useCurrentUserName';
+import { useDeviceCounts } from '@/hooks/useDeviceCounts';
 import { monogramOf } from '@/utils/format.util';
 import { getGreeting } from '@/utils/greeting.util';
 
@@ -24,6 +25,7 @@ export function DashboardScreen() {
   const summary = useDashboardSummary();
   const highlights = useHighlights();
   const userName = useCurrentUserName();
+  const { deviceCount, groupCount } = useDeviceCounts();
 
   if (summary.isError || highlights.isError) {
     return (
@@ -109,18 +111,10 @@ export function DashboardScreen() {
           <AccessCard
             variant="primary"
             title="Monitoramento"
-            subtitle={`${s.deviceCount} dispositivos · ${s.groupCount} grupos`}
+            subtitle={`${deviceCount} dispositivos · ${groupCount} grupos`}
             icon={<Rss size={25} color="$white" />}
             accessibilityLabel="Abrir monitoramento"
             onPress={() => router.push('/(main)/devices')}
-          />
-          <AccessCard
-            variant="soft"
-            title="Assistências"
-            subtitle="Suporte e chamados técnicos"
-            icon={<Clock size={25} color="$brand" />}
-            accessibilityLabel="Abrir assistências"
-            onPress={() => router.push('/(main)/assist')}
           />
         </YStack>
       </YStack>

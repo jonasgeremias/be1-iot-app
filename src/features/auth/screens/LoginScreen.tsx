@@ -2,11 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Eye, EyeOff, Mail, Lock } from '@tamagui/lucide-icons';
 import { Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ScrollView, View, XStack, YStack } from 'tamagui';
 
 import { appConfig } from '@/config/app.config';
+import { storage } from '@/services/storage/storage';
+import { StorageKeys } from '@/services/storage/storage.keys';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/shared/ui/Button';
 import { BrandGradient } from '@/shared/ui/BrandGradient';
@@ -28,13 +30,27 @@ export function LoginScreen() {
   const login = useLogin();
   const [showPassword, setShowPassword] = useState(false);
 
-  const { control, handleSubmit, formState } = useForm<LoginInput>({
+  const { control, handleSubmit, setValue } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', remember: true },
     mode: 'onTouched',
   });
 
+  // Prefill the remembered identifier from the last "Lembrar acesso".
+  useEffect(() => {
+    void storage.get(StorageKeys.rememberEmail).then((saved) => {
+      if (saved) setValue('email', saved);
+    });
+  }, [setValue]);
+
   const onSubmit = (values: LoginInput) => login.mutate(values);
+
+  const errorMessage = login.isError
+    ? (login.error as { status?: number; message?: string })?.status === 401
+      ? 'E-mail/CPF ou senha inválidos.'
+      : ((login.error as { message?: string })?.message ??
+        'Não foi possível entrar. Tente novamente.')
+    : null;
 
   return (
     <YStack flex={1} bg="$bg">
@@ -195,6 +211,12 @@ export function LoginScreen() {
                 Esqueci a senha
               </Text>
             </XStack>
+
+            {errorMessage ? (
+              <Text color="$red" fontSize="$11.5" mb="$10" ta="center" fontWeight="600">
+                {errorMessage}
+              </Text>
+            ) : null}
 
             <Button
               onPress={handleSubmit(onSubmit)}

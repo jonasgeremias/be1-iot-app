@@ -1,6 +1,20 @@
 import { minutesSince } from './iotDates';
 import type { IotDeviceStatus } from '../schemas/device.schema';
 
+/** Whether a device matches the list search (nickname / MAC / order number). */
+export function deviceMatchesSearch(
+  device: { nickname?: string | null; macAddress: string; orderNumber?: string },
+  query: string,
+): boolean {
+  if (!query) return true;
+  const q = query.toLowerCase();
+  return (
+    !!device.nickname?.toLowerCase().includes(q) ||
+    device.macAddress.toLowerCase().includes(q) ||
+    (device.orderNumber ?? '').toLowerCase().includes(q)
+  );
+}
+
 /** Normalize a MAC to AA:BB:CC:DD:EE:FF. */
 export function formatMac(mac: string): string {
   const clean = mac.replace(/[^a-fA-F0-9]/g, '');

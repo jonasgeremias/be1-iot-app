@@ -41,9 +41,12 @@ export function ChamberHistoryChart({
   const [width, setWidth] = useState(0);
 
   const isEmpty = chamberHistory.length === 0;
-  const temps = chamberHistory.map((p) => p.temperature);
-  const minTemp = isEmpty ? 0 : Math.min(...temps);
-  const maxTemp = isEmpty ? 50 : Math.max(...temps);
+  // Backend may send null readings — map to NaN (LineChartSvg skips them) and
+  // compute the scale/color only over finite values.
+  const temps = chamberHistory.map((p) => p.temperature ?? NaN);
+  const finiteTemps = temps.filter((v) => Number.isFinite(v));
+  const minTemp = finiteTemps.length ? Math.min(...finiteTemps) : 0;
+  const maxTemp = finiteTemps.length ? Math.max(...finiteTemps) : 50;
   const avgColor = getTemperatureColor((minTemp + maxTemp) / 2);
 
   const buttonsDisabled = isFetching || !selectedChamber;

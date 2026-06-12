@@ -18,7 +18,8 @@ const TABS: Record<string, TabMeta> = {
   profile: { label: 'Perfil', Icon: User },
 };
 
-const ORDER = ['assist', 'index', 'devices', 'profile'];
+// "assist" (Assistências) is hidden until that screen is wired to the API.
+const ORDER = ['index', 'devices', 'profile'];
 
 /**
  * Bottom tab bar recreating the prototype's `Nav`: surface bar with a top

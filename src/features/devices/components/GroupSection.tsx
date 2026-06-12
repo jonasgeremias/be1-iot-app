@@ -5,6 +5,7 @@ import { View, XStack, YStack } from 'tamagui';
 import { MonoText, Text } from '@/shared/ui/Text';
 
 import type { IotDevice, IotGroupedEntry } from '../schemas/device.schema';
+import { deviceMatchesSearch } from '../utils/iotConstants';
 import { DeviceCard } from './DeviceCard';
 
 type Props = {
@@ -17,15 +18,9 @@ type Props = {
 export function GroupSection({ entry, searchQuery, onDevicePress }: Props) {
   const [expanded, setExpanded] = useState(true);
 
-  const filtered = entry.devices.filter((d) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      d.nickname?.toLowerCase().includes(q) ||
-      d.macAddress.toLowerCase().includes(q) ||
-      d.orderNumber.toLowerCase().includes(q)
-    );
-  });
+  const filtered = entry.devices.filter((d) =>
+    deviceMatchesSearch(d, searchQuery),
+  );
 
   if (filtered.length === 0) return null;
 

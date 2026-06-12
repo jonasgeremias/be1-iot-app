@@ -21,6 +21,9 @@ export const queryKeys = {
       ['devices', 'sccHistory', id, range, offset] as const,
     bulkHistory: (id: string, preset: string, ref: string) =>
       ['devices', 'bulkHistory', id, preset, ref] as const,
+    events: (id: string, key: string) =>
+      ['devices', 'events', id, key] as const,
+    settings: (id: string) => ['devices', 'settings', id] as const,
   },
   profile: {
     me: ['profile', 'me'] as const,

@@ -6,7 +6,7 @@ export const unstable_settings = {
   initialRouteName: 'index',
 };
 
-/** Device-detail tab navigator (Tempo Real · Configuração · Histórico). */
+/** Device-detail tab navigator (Tempo Real · Histórico · Eventos · Configuração). */
 export default function DeviceDetailLayout() {
   return (
     <Tabs
@@ -14,8 +14,9 @@ export default function DeviceDetailLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="index" options={{ title: 'Tempo Real' }} />
-      <Tabs.Screen name="config" options={{ title: 'Configuração' }} />
       <Tabs.Screen name="history" options={{ title: 'Histórico' }} />
+      <Tabs.Screen name="events" options={{ title: 'Eventos' }} />
+      <Tabs.Screen name="config" options={{ title: 'Configuração' }} />
     </Tabs>
   );
 }

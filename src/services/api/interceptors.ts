@@ -28,6 +28,7 @@ async function clearSession() {
     storage.remove(StorageKeys.refreshToken),
     storage.remove(StorageKeys.userId),
     storage.remove(StorageKeys.userName),
+    storage.remove(StorageKeys.permissions),
   ]);
 }
 

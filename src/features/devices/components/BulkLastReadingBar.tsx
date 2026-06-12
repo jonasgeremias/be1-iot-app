@@ -35,6 +35,7 @@ export function BulkLastReadingBar({
             secondsLeft={secondsLeft}
             totalSeconds={totalSeconds}
             progress={progress}
+            clickDelaySec={0}
             onPress={onRefetch}
           />
           <YStack flex={1} minWidth={0}>

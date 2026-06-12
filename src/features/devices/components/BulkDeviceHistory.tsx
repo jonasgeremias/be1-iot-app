@@ -75,10 +75,10 @@ export function BulkDeviceHistory({ deviceId, referenceDate }: Props) {
           segments={6}
           xLabels={xLabels}
           series={[
-            { data: points.map((p) => p.temperature), color: TEMP_COLOR },
-            { data: points.map((p) => p.stTemperature), color: TEMP_SET_COLOR, withDots: false },
-            { data: points.map((p) => p.humidity), color: HUM_COLOR },
-            { data: points.map((p) => p.stHumidity), color: HUM_SET_COLOR, withDots: false },
+            { data: points.map((p) => p.temperature ?? NaN), color: TEMP_COLOR },
+            { data: points.map((p) => p.stTemperature ?? NaN), color: TEMP_SET_COLOR, withDots: false },
+            { data: points.map((p) => p.humidity ?? NaN), color: HUM_COLOR },
+            { data: points.map((p) => p.stHumidity ?? NaN), color: HUM_SET_COLOR, withDots: false },
           ]}
         />
       </View>

@@ -80,14 +80,17 @@ export function ChamberGrid({
   return (
     <XStack width="100%" height={280}>
       {hasFurnace ? (
-        <View width="20%" height="100%" ai="center" jc="center">
-          <ChamberCard
-            chamberIndex={9}
-            data={latestData?.['9']}
-            isLoading={isLoading}
-            isSelected={selectedChamber === '9'}
-            onPress={() => onSelectChamber('9')}
-          />
+        <View width="20%" height="100%">
+          {/* row + flex:1 so the return cell fills the column (be1-app parity). */}
+          <XStack flex={1}>
+            <ChamberCard
+              chamberIndex={9}
+              data={latestData?.['9']}
+              isLoading={isLoading}
+              isSelected={selectedChamber === '9'}
+              onPress={() => onSelectChamber('9')}
+            />
+          </XStack>
         </View>
       ) : null}
 
