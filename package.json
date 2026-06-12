@@ -1,5 +1,5 @@
 {
-  "name": "be1-app",
+  "name": "be1-smart",
   "version": "1.28.0",
   "main": "expo-router/entry",
   "scripts": {
