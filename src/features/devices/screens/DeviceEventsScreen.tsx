@@ -3,8 +3,9 @@ import {
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
   ChevronLeft as ChevronLeftIcon,
+  Search,
 } from '@tamagui/lucide-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, View, XStack, YStack } from 'tamagui';
 
@@ -12,6 +13,7 @@ import { EmptyState } from '@/shared/components/EmptyState';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
+import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { IconButton } from '@/shared/ui/IconButton';
 import { SegmentedControl } from '@/shared/ui/SegmentedControl';
@@ -107,7 +109,7 @@ function EventRow({ event }: { event: IotDeviceEvent }) {
 
 /** Device events · list with severity/period filters (be1-dashboard parity). */
 export function DeviceEventsScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useGlobalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
   const router = useRouter();
 
@@ -128,9 +130,10 @@ export function DeviceEventsScreen() {
     device?.deviceType === 'PP' ||
     device?.deviceType === 'BULK';
 
+  // Load as soon as we have an id; only block once we KNOW it's an unsupported type.
   const { data, isLoading, isError, refetch, isFetching } = useIotDeviceEvents(
     deviceId,
-    { severities, start, end, page, limit, enabled: supported },
+    { severities, start, end, page, limit, enabled: device == null || supported },
   );
 
   const setPreset = (k: string) => {
@@ -253,6 +256,21 @@ export function DeviceEventsScreen() {
             </View>
           );
         })}
+      </XStack>
+
+      {/* buscar */}
+      <XStack px="$16" pt="$12">
+        <Button
+          onPress={() => {
+            setPage(1);
+            void refetch();
+          }}
+          disabled={isFetching}
+          opacity={isFetching ? 0.7 : 1}
+          icon={<Search size={17} color="$white" />}
+        >
+          {isFetching ? 'Buscando…' : 'Buscar'}
+        </Button>
       </XStack>
 
       {/* body */}

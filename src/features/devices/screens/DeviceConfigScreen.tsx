@@ -7,7 +7,7 @@ import {
   Save,
   SlidersHorizontal,
 } from '@tamagui/lucide-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { Spinner, View, XStack, YStack } from 'tamagui';
@@ -33,7 +33,7 @@ import {
 
 /** Device configuration · remote settings tree (admin only, SCC/PP/BULK). */
 export function DeviceConfigScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useGlobalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
   const router = useRouter();
 

@@ -1,5 +1,7 @@
-import { Bell, Rss } from '@tamagui/lucide-icons';
+import { Bell, BellOff, Rss } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Modal } from 'react-native';
 import { View, XStack, YStack } from 'tamagui';
 
 import { Carousel } from '@/shared/components/Carousel';
@@ -7,6 +9,8 @@ import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
 import { Avatar } from '@/shared/ui/Avatar';
+import { Button } from '@/shared/ui/Button';
+import { Card } from '@/shared/ui/Card';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 import { useCurrentUserName } from '@/hooks/useCurrentUserName';
@@ -26,6 +30,7 @@ export function DashboardScreen() {
   const highlights = useHighlights();
   const userName = useCurrentUserName();
   const { deviceCount, groupCount } = useDeviceCounts();
+  const [notifOpen, setNotifOpen] = useState(false);
 
   if (summary.isError || highlights.isError) {
     return (
@@ -72,30 +77,13 @@ export function DashboardScreen() {
           </Text>
         </YStack>
         <XStack gap="$10" ai="center">
-          <View position="relative">
-            <IconButton accessibilityLabel="Notificações" size="lg">
-              <Bell size={20} color="$text2" />
-            </IconButton>
-            {s.notifications > 0 ? (
-              <View
-                position="absolute"
-                top={-3}
-                right={-3}
-                minWidth={17}
-                height={17}
-                br={9}
-                bg="$red"
-                ai="center"
-                jc="center"
-                borderWidth={2}
-                borderColor="$bg"
-              >
-                <Text fontSize="$10" fontWeight="700" color="$white">
-                  {s.notifications}
-                </Text>
-              </View>
-            ) : null}
-          </View>
+          <IconButton
+            accessibilityLabel="Notificações"
+            size="lg"
+            onPress={() => setNotifOpen(true)}
+          >
+            <Bell size={20} color="$text2" />
+          </IconButton>
           <Avatar initials={monogram} size={42} radius={13} fontSize={14} />
         </XStack>
       </XStack>
@@ -118,6 +106,44 @@ export function DashboardScreen() {
           />
         </YStack>
       </YStack>
+
+      <Modal
+        visible={notifOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setNotifOpen(false)}
+      >
+        <View
+          flex={1}
+          bg="rgba(0,0,0,0.45)"
+          ai="center"
+          jc="center"
+          px="$16"
+          onPress={() => setNotifOpen(false)}
+        >
+          <Card
+            radius={20}
+            elevated
+            p="$20"
+            ai="center"
+            gap="$10"
+            width="100%"
+            maxWidth={360}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View width={64} height={64} br={32} bg="$surface3" ai="center" jc="center">
+              <BellOff size={30} color="$text3" />
+            </View>
+            <Text fontSize="$17" fontWeight="800" color="$text">
+              Nenhuma notificação
+            </Text>
+            <Text fontSize="$13" color="$text2" ta="center">
+              Você está em dia. Novos avisos aparecerão aqui.
+            </Text>
+            <Button onPress={() => setNotifOpen(false)}>Fechar</Button>
+          </Card>
+        </View>
+      </Modal>
     </Screen>
   );
 }

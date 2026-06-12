@@ -1,7 +1,7 @@
-import { Ban, ChevronLeft } from '@tamagui/lucide-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ban, ChevronLeft, RefreshCw } from '@tamagui/lucide-icons';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { XStack, YStack } from 'tamagui';
+import { Spinner, XStack, YStack } from 'tamagui';
 
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
@@ -24,13 +24,11 @@ import {
 
 /** Device detail · histórico (gráficos) for SCC / PP / BULK. */
 export function DeviceHistoryScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useGlobalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
   const router = useRouter();
 
   const { device, isLoading: isLoadingDevice } = useIotDevice(deviceId);
-  const isScc = device?.deviceType === 'SCC';
-  const isBulkLike = device?.deviceType === 'PP' || device?.deviceType === 'BULK';
 
   const [timeRangeOption, setTimeRangeOption] =
     useState<TimeRangePresetOptions>('1day');
@@ -39,17 +37,25 @@ export function DeviceHistoryScreen() {
   const [selectedChamber, setSelectedChamber] = useState<string | null>(null);
   const [showPicker, setShowPicker] = useState(false);
 
-  const { latestData, lastFetch, isLoading: isLoadingLatest } = useIotLatestData(
-    deviceId,
-    isScc || isBulkLike ? LATEST_CARD_POLL_MS : undefined,
-  );
+  const {
+    latestData,
+    lastFetch,
+    isLoading: isLoadingLatest,
+    refetch: refetchLatest,
+  } = useIotLatestData(deviceId, LATEST_CARD_POLL_MS);
+
+  // Type from the live snapshot first, falling back to the grouped cache.
+  const deviceType = latestData?.deviceType ?? device?.deviceType;
+  const isScc = deviceType === 'SCC';
+  const isBulkLike = deviceType === 'PP' || deviceType === 'BULK';
+
   const sccChambers = getSccChambers(latestData);
 
-  const { deviceHistory, isFetching: isFetchingHistory } = useIotDeviceHistory(
-    isScc ? deviceId : '',
-    timeRangeOption,
-    timeOffset,
-  );
+  const {
+    deviceHistory,
+    isFetching: isFetchingHistory,
+    refetch: refetchHistory,
+  } = useIotDeviceHistory(isScc ? deviceId : '', timeRangeOption, timeOffset);
 
   // auto-select first chamber
   useEffect(() => {
@@ -85,6 +91,12 @@ export function DeviceHistoryScreen() {
     setTimeOffset(found);
   }, [lastFetch, timeRangeOption]);
 
+  const refreshing = isLoadingLatest || isFetchingHistory;
+  const onRefresh = () => {
+    void refetchLatest();
+    void refetchHistory();
+  };
+
   const header = (
     <XStack px="$16" pt="$4" pb="$8" ai="center" gap="$12">
       <IconButton accessibilityLabel="Voltar" onPress={() => router.back()}>
@@ -100,10 +112,14 @@ export function DeviceHistoryScreen() {
           </Text>
         ) : null}
       </YStack>
+      <IconButton accessibilityLabel="Buscar" tone="brandSoft" onPress={onRefresh}>
+        {refreshing ? <Spinner color="$brand" /> : <RefreshCw size={17} color="$brand" />}
+      </IconButton>
     </XStack>
   );
 
-  if (isLoadingDevice && !device) {
+  // Wait until we can determine the device type (from live data or cache).
+  if (!deviceType && (isLoadingDevice || isLoadingLatest)) {
     return (
       <Screen tabBarSpacing>
         {header}
@@ -112,7 +128,7 @@ export function DeviceHistoryScreen() {
     );
   }
 
-  if (device && !isScc && !isBulkLike) {
+  if (deviceType && !isScc && !isBulkLike) {
     return (
       <Screen tabBarSpacing>
         {header}

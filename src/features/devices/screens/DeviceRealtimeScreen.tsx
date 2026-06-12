@@ -1,6 +1,6 @@
 import { Ban, CloudOff, Pencil } from '@tamagui/lucide-icons';
 import { ChevronLeft } from '@tamagui/lucide-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { YStack, XStack } from 'tamagui';
 
@@ -44,7 +44,7 @@ function NoDeviceData() {
 
 /** Device detail · live state (be1-app MonitoringView). History lives in the Histórico tab. */
 export function DeviceRealtimeScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useGlobalSearchParams<{ id: string }>();
   const deviceId = id ?? '';
   const router = useRouter();
 

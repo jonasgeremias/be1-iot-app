@@ -1,16 +1,12 @@
 import {
-  Bell,
   Calendar,
   ChevronLeft,
-  ChevronRight,
   CreditCard,
-  Lock,
   LogOut,
   Mail,
   MapPin,
   Pencil,
   Phone,
-  ShieldCheck,
   User,
   X,
 } from '@tamagui/lucide-icons';
@@ -29,7 +25,6 @@ import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
 import { Select } from '@/shared/ui/Select';
 import { Separator } from '@/shared/ui/Separator';
-import { Switch } from '@/shared/ui/Switch';
 import { Text } from '@/shared/ui/Text';
 import {
   formatCPF,
@@ -63,7 +58,6 @@ export function ProfileScreen() {
   const logout = useLogout();
 
   const [editing, setEditing] = useState(false);
-  const [twoFactor, setTwoFactor] = useState(true);
 
   // editable fields
   const [name, setName] = useState('');
@@ -326,53 +320,6 @@ export function ProfileScreen() {
             Editar Informações
           </Button>
         )}
-
-        {/* Account settings */}
-        <Card radius={18} elevated>
-          <Text
-            fontSize="$10.5"
-            fontWeight="800"
-            color="$text3"
-            letterSpacing={0.6}
-            px="$15"
-            pt="$11"
-            pb="$7"
-          >
-            CONFIGURAÇÕES DA CONTA
-          </Text>
-          <ListRow
-            icon={<Lock size={17} color="$text2" />}
-            iconSize={32}
-            title="Alterar senha"
-            onPress={() => router.push('/(auth)/forgot-password')}
-            right={<ChevronRight size={17} color="$text3" />}
-          />
-          <Separator mx="$15" />
-          <ListRow
-            icon={<Bell size={17} color="$text2" />}
-            iconSize={32}
-            title="Notificações"
-            onPress={() => {}}
-            right={<ChevronRight size={17} color="$text3" />}
-          />
-          <Separator mx="$15" />
-          <ListRow
-            icon={<ShieldCheck size={17} color="$online" />}
-            iconBg="$onlineSoft"
-            iconSize={32}
-            title="Autenticação 2FA"
-            subtitle={twoFactor ? 'Ativada' : 'Desativada'}
-            subtitleColor="$online"
-            right={
-              <Switch
-                value={twoFactor}
-                onValueChange={setTwoFactor}
-                onColor="$online"
-                accessibilityLabel="Autenticação de dois fatores"
-              />
-            }
-          />
-        </Card>
 
         {/* Logout */}
         <Button
