@@ -1,4 +1,4 @@
-import { Ban, CloudOff, Pencil , ChevronLeft } from '@tamagui/lucide-icons';
+import { Ban, CloudOff, Pencil, ChevronLeft } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { YStack, XStack } from 'tamagui';

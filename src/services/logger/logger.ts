@@ -1,5 +1,3 @@
- 
-
 /** Tiny framework-agnostic logger. Swappable for Sentry/etc. later. */
 type Level = 'debug' | 'info' | 'warn' | 'error';
 
