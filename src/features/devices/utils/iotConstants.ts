@@ -41,9 +41,7 @@ export function getStatusLabel(status: string): {
   label: string;
   tone: 'online' | 'neutral' | 'red';
 } {
-  return (
-    STATUS_LABELS[status as IotDeviceStatus] ?? { label: status, tone: 'neutral' }
-  );
+  return STATUS_LABELS[status as IotDeviceStatus] ?? { label: status, tone: 'neutral' };
 }
 
 // ── reading status (online / idle / offline) — be1-app §3 ─────────────────────

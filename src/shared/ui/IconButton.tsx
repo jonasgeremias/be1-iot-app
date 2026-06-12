@@ -59,11 +59,7 @@ type Props = GetProps<typeof Frame> & {
 
 export function IconButton({ children, accessibilityLabel, ...rest }: Props) {
   return (
-    <Frame
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      {...rest}
-    >
+    <Frame accessibilityRole="button" accessibilityLabel={accessibilityLabel} {...rest}>
       {children}
     </Frame>
   );

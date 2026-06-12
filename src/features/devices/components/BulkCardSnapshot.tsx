@@ -65,8 +65,7 @@ export function BulkCardSnapshot({ snapshot, isLoading }: Props) {
   }
 
   const tempUnit = snapshot.celsius ? '°C' : '°F';
-  const fmt = (n: number | null | undefined) =>
-    n == null || isNaN(n) ? '—' : `${Math.round(n)}`;
+  const fmt = (n: number | null | undefined) => (n == null || isNaN(n) ? '—' : `${Math.round(n)}`);
   const blowerOn = snapshot.blower === true;
 
   return (
@@ -84,13 +83,7 @@ export function BulkCardSnapshot({ snapshot, isLoading }: Props) {
         unit="%"
       />
       <Stat
-        icon={
-          blowerOn ? (
-            <Wind size={18} color="#16A66A" />
-          ) : (
-            <Power size={18} color="#9CA3AF" />
-          )
-        }
+        icon={blowerOn ? <Wind size={18} color="#16A66A" /> : <Power size={18} color="#9CA3AF" />}
         current={blowerOn ? 'Ligado' : 'Desligado'}
         valueColor={blowerOn ? '#16A66A' : '#9CA3AF'}
       />

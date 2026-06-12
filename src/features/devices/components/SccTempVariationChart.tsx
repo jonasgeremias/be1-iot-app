@@ -135,12 +135,26 @@ export function SccTempVariationChart({
     return (
       <>
         <Defs>
-          <SvgLinearGradient id="lineGrad" x1={x0} y1={0} x2={xLast} y2={0} gradientUnits="userSpaceOnUse">
+          <SvgLinearGradient
+            id="lineGrad"
+            x1={x0}
+            y1={0}
+            x2={xLast}
+            y2={0}
+            gradientUnits="userSpaceOnUse"
+          >
             {lineStops.map((s, i) => (
               <Stop key={i} offset={s.off} stopColor={s.color} />
             ))}
           </SvgLinearGradient>
-          <SvgLinearGradient id="areaGrad" x1={0} y1={plotTop} x2={0} y2={plotBottom} gradientUnits="userSpaceOnUse">
+          <SvgLinearGradient
+            id="areaGrad"
+            x1={0}
+            y1={plotTop}
+            x2={0}
+            y2={plotBottom}
+            gradientUnits="userSpaceOnUse"
+          >
             <Stop offset={0} stopColor={midColor} stopOpacity={0.22} />
             <Stop offset={1} stopColor={midColor} stopOpacity={0} />
           </SvgLinearGradient>
@@ -148,20 +162,48 @@ export function SccTempVariationChart({
 
         {points.map((_, i) =>
           i % 2 === 0 ? (
-            <Rect key={`stripe-${i}`} x={plotL + i * colW} y={plotTop} width={colW} height={plotH} fill="rgba(138,153,172,0.12)" />
+            <Rect
+              key={`stripe-${i}`}
+              x={plotL + i * colW}
+              y={plotTop}
+              width={colW}
+              height={plotH}
+              fill="rgba(138,153,172,0.12)"
+            />
           ) : null,
         )}
 
         {drops.map((i) => (
-          <Rect key={`band-${i}`} x={x(i)} y={plotTop} width={x(i + 1) - x(i)} height={plotH} fill="rgba(220,38,38,0.08)" />
+          <Rect
+            key={`band-${i}`}
+            x={x(i)}
+            y={plotTop}
+            width={x(i + 1) - x(i)}
+            height={plotH}
+            fill="rgba(220,38,38,0.08)"
+          />
         ))}
 
         {gridlines.map((v) => (
-          <Line key={`grid-${v}`} x1={plotL} y1={y(v)} x2={plotR} y2={y(v)} stroke="rgba(138,153,172,0.25)" strokeWidth={1} />
+          <Line
+            key={`grid-${v}`}
+            x1={plotL}
+            y1={y(v)}
+            x2={plotR}
+            y2={y(v)}
+            stroke="rgba(138,153,172,0.25)"
+            strokeWidth={1}
+          />
         ))}
 
         <Path d={areaPath} fill="url(#areaGrad)" />
-        <Path d={linePath} stroke="url(#lineGrad)" strokeWidth={2} strokeLinejoin="round" fill="none" />
+        <Path
+          d={linePath}
+          stroke="url(#lineGrad)"
+          strokeWidth={2}
+          strokeLinejoin="round"
+          fill="none"
+        />
 
         {drops.map((i) => (
           <Rect
@@ -190,7 +232,14 @@ export function SccTempVariationChart({
         {points.map((p, i) => (
           <Fragment key={`badge-${i}`}>
             <Circle cx={x(i)} cy={plotBottom + 16} r={9} fill={getTemperatureColor(p.canonicalF)} />
-            <SvgText x={x(i)} y={plotBottom + 20} fontSize={11} fontWeight="bold" fill="#FFFFFF" textAnchor="middle">
+            <SvgText
+              x={x(i)}
+              y={plotBottom + 20}
+              fontSize={11}
+              fontWeight="bold"
+              fill="#FFFFFF"
+              textAnchor="middle"
+            >
               {p.chamber}
             </SvgText>
           </Fragment>
@@ -220,7 +269,11 @@ export function SccTempVariationChart({
         Variação de Temperatura
       </Text>
 
-      <View height={HEIGHT} position="relative" onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      <View
+        height={HEIGHT}
+        position="relative"
+        onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+      >
         {width > 0 ? (
           <Svg width={width} height={HEIGHT}>
             {renderBody()}

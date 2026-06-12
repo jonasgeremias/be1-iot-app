@@ -34,13 +34,7 @@ const fieldInput = {
   color: '$text',
 } as const;
 
-function NumberField({
-  value,
-  onChange,
-}: {
-  value: unknown;
-  onChange: (v: unknown) => void;
-}) {
+function NumberField({ value, onChange }: { value: unknown; onChange: (v: unknown) => void }) {
   const [text, setText] = useState(value == null ? '' : String(value));
   useEffect(() => {
     const cur = text.trim() === '' ? null : Number(text);
@@ -70,14 +64,7 @@ function NumberField({
 }
 
 /** Recursive settings tree node: collapsible group or editable leaf. */
-export function SettingsNode({
-  keyName,
-  value,
-  original,
-  path,
-  onChange,
-  depth,
-}: Props) {
+export function SettingsNode({ keyName, value, original, path, onChange, depth }: Props) {
   const [open, setOpen] = useState(depth === 0 ? false : true);
   const label = translateSettingKey(keyName);
 
@@ -88,13 +75,7 @@ export function SettingsNode({
     const keys = Object.keys(value);
     return (
       <YStack>
-        <XStack
-          ai="center"
-          gap="$8"
-          py="$8"
-          onPress={() => setOpen((v) => !v)}
-          cursor="pointer"
-        >
+        <XStack ai="center" gap="$8" py="$8" onPress={() => setOpen((v) => !v)} cursor="pointer">
           {open ? (
             <ChevronDown size={16} color="$text3" />
           ) : (
@@ -113,22 +94,9 @@ export function SettingsNode({
         </XStack>
 
         {open ? (
-          <YStack
-            pl="$12"
-            ml="$6"
-            borderLeftWidth={1}
-            borderLeftColor="$border"
-            gap="$2"
-          >
+          <YStack pl="$12" ml="$6" borderLeftWidth={1} borderLeftColor="$border" gap="$2">
             {warning ? (
-              <XStack
-                ai="flex-start"
-                gap="$6"
-                bg="$amberSoft"
-                br={8}
-                p="$8"
-                my="$6"
-              >
+              <XStack ai="flex-start" gap="$6" bg="$amberSoft" br={8} p="$8" my="$6">
                 <TriangleAlert size={14} color="$amber" />
                 <Text fontSize={11} color="$amber" flex={1}>
                   {warning}

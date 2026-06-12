@@ -41,11 +41,7 @@ export function StatusBadge({ status, label, size = 'sm' }: Props) {
       py={size === 'md' ? '$5' : '$3'}
       br={size === 'md' ? '$9' : '$7'}
     >
-      <PulseDot
-        color={meta.color}
-        size={size === 'md' ? 7 : 6}
-        pulse={status === 'online'}
-      />
+      <PulseDot color={meta.color} size={size === 'md' ? 7 : 6} pulse={status === 'online'} />
       <Text fontSize={fontSize} fontWeight="800" color={`$${meta.color}`}>
         {label ?? meta.label}
       </Text>

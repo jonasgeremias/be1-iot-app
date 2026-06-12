@@ -19,16 +19,12 @@ export const locationsService = {
   },
 
   async listStates(countryId: string): Promise<SelectOption[]> {
-    const { data } = await apiClient.post(
-      `/locations/countries/${countryId}/states/list`,
-    );
+    const { data } = await apiClient.post(`/locations/countries/${countryId}/states/list`);
     return toOptions(data);
   },
 
   async listCities(stateId: string): Promise<SelectOption[]> {
-    const { data } = await apiClient.post(
-      `/locations/states/${stateId}/cities/list`,
-    );
+    const { data } = await apiClient.post(`/locations/states/${stateId}/cities/list`);
     return toOptions(data);
   },
 };

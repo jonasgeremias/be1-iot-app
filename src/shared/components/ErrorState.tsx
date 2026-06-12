@@ -18,14 +18,7 @@ export function ErrorState({
 }: Props) {
   return (
     <YStack ai="center" jc="center" gap="$12" py="$40" px="$22">
-      <YStack
-        width={74}
-        height={74}
-        br={22}
-        bg="$redSoft"
-        ai="center"
-        jc="center"
-      >
+      <YStack width={74} height={74} br={22} bg="$redSoft" ai="center" jc="center">
         <TriangleAlert size={32} color="$red" />
       </YStack>
       <Text fontSize="$17" fontWeight="800" color="$text" ta="center">

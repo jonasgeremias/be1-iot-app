@@ -31,13 +31,7 @@ import { Separator } from '@/shared/ui/Separator';
 import { Switch } from '@/shared/ui/Switch';
 import { Text } from '@/shared/ui/Text';
 import { useThemeStore } from '@/store/theme.store';
-import {
-  formatCPF,
-  formatDateBr,
-  formatPhone,
-  monogramOf,
-  onlyDigits,
-} from '@/utils/format.util';
+import { formatCPF, formatDateBr, formatPhone, monogramOf, onlyDigits } from '@/utils/format.util';
 
 import { useLogout } from '@/hooks/useLogout';
 
@@ -79,8 +73,7 @@ export function ProfileScreen() {
   const [stateId, setStateId] = useState<string | null>(null);
   const [cityId, setCityId] = useState<string | null>(null);
 
-  const { statesOptions, citiesOptions, isStatesLoading, isCitiesLoading } =
-    useLocations(stateId);
+  const { statesOptions, citiesOptions, isStatesLoading, isCitiesLoading } = useLocations(stateId);
 
   useEffect(() => {
     if (!data) return;
@@ -109,15 +102,12 @@ export function ProfileScreen() {
 
   const role = data.roles?.[0]?.name ?? 'Usuário';
   const city = data.cityRelation?.name ?? '';
-  const stateLabel =
-    data.cityRelation?.state?.uf ?? data.cityRelation?.state?.name ?? '';
+  const stateLabel = data.cityRelation?.state?.uf ?? data.cityRelation?.state?.name ?? '';
   const location = [city, stateLabel].filter(Boolean).join(' · ');
   const imageUrl = data.avatarUrl ?? data.avatar ?? null;
 
   const canSave =
-    name.trim() !== '' &&
-    onlyDigits(cpf).length === 11 &&
-    onlyDigits(phone).length === 11;
+    name.trim() !== '' && onlyDigits(cpf).length === 11 && onlyDigits(phone).length === 11;
 
   const uploadPicked = async (res: ImagePicker.ImagePickerResult) => {
     if (res.canceled || !res.assets?.[0]) return;
@@ -136,10 +126,7 @@ export function ProfileScreen() {
   const pickFromGallery = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(
-        'Permissão necessária',
-        'Permita o acesso às fotos para escolher uma imagem.',
-      );
+      Alert.alert('Permissão necessária', 'Permita o acesso às fotos para escolher uma imagem.');
       return;
     }
     await uploadPicked(
@@ -155,10 +142,7 @@ export function ProfileScreen() {
   const pickFromCamera = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(
-        'Permissão necessária',
-        'Permita o acesso à câmera para tirar uma foto.',
-      );
+      Alert.alert('Permissão necessária', 'Permita o acesso à câmera para tirar uma foto.');
       return;
     }
     await uploadPicked(
@@ -303,9 +287,7 @@ export function ProfileScreen() {
                   options={citiesOptions}
                   loading={isCitiesLoading}
                   disabled={!stateId}
-                  placeholder={
-                    stateId ? 'Selecione a cidade' : 'Selecione o estado primeiro'
-                  }
+                  placeholder={stateId ? 'Selecione a cidade' : 'Selecione o estado primeiro'}
                   onChange={(v) => setCityId(v)}
                 />
               </YStack>

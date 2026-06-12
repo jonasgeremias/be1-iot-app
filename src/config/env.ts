@@ -14,12 +14,8 @@ type Extra = {
 const extra = (Constants.expoConfig?.extra ?? {}) as Extra;
 
 export const env = {
-  API_URL:
-    process.env.EXPO_PUBLIC_API_URL ?? extra.apiUrl ?? 'https://api.be1.com.br',
-  SOCKET_URL:
-    process.env.EXPO_PUBLIC_SOCKET_URL ??
-    extra.socketUrl ??
-    'https://rt.be1.com.br',
+  API_URL: process.env.EXPO_PUBLIC_API_URL ?? extra.apiUrl ?? 'https://api.be1.com.br',
+  SOCKET_URL: process.env.EXPO_PUBLIC_SOCKET_URL ?? extra.socketUrl ?? 'https://rt.be1.com.br',
   // Toggle to swap mock services for the real API once it exists.
   USE_MOCKS: process.env.EXPO_PUBLIC_USE_MOCKS !== 'false',
 } as const;

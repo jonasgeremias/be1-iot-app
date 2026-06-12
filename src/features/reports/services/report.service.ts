@@ -1,10 +1,6 @@
 import { delay } from '@/utils/async.util';
 
-import {
-  deviceReportSchema,
-  type DeviceReport,
-  type ReportPeriod,
-} from '../schemas/report.schema';
+import { deviceReportSchema, type DeviceReport, type ReportPeriod } from '../schemas/report.schema';
 
 const REPORT_FIXTURE = {
   deviceName: 'Teste de bancada 1',
@@ -24,10 +20,7 @@ const REPORT_FIXTURE = {
 };
 
 export const reportService = {
-  async getDeviceReport(
-    id: string,
-    period: ReportPeriod,
-  ): Promise<DeviceReport> {
+  async getDeviceReport(id: string, period: ReportPeriod): Promise<DeviceReport> {
     await delay(350);
     void id;
     void period;

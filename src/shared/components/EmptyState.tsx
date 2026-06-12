@@ -14,14 +14,7 @@ type Props = {
 export function EmptyState({ title, description, icon }: Props) {
   return (
     <YStack ai="center" jc="center" gap="$10" py="$40" px="$22">
-      <YStack
-        width={74}
-        height={74}
-        br={22}
-        bg="$brandSoft"
-        ai="center"
-        jc="center"
-      >
+      <YStack width={74} height={74} br={22} bg="$brandSoft" ai="center" jc="center">
         {icon ?? <Inbox size={32} color="$brand" />}
       </YStack>
       <Text fontSize="$17" fontWeight="800" color="$text" ta="center">

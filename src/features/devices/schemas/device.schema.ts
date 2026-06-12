@@ -141,20 +141,11 @@ export type HistoryPoint = {
   arrows?: SccArrow[];
 };
 
-export const deviceHistorySchema = z.record(
-  z.string(),
-  z.array(historyPointSchema),
-);
+export const deviceHistorySchema = z.record(z.string(), z.array(historyPointSchema));
 export type DeviceHistory = z.infer<typeof deviceHistorySchema>;
 
 // ── PP/BULK history (GET /iot/device/data) ───────────────────────────────────
-export const cb200ResolutionSchema = z.enum([
-  'raw',
-  '10min',
-  '15min',
-  '20min',
-  '1h',
-]);
+export const cb200ResolutionSchema = z.enum(['raw', '10min', '15min', '20min', '1h']);
 export type Cb200Resolution = z.infer<typeof cb200ResolutionSchema>;
 
 export const cb200DataPointSchema = z.object({

@@ -45,11 +45,7 @@ export function LoginScreen() {
 
   return (
     <YStack flex={1} bg="$bg">
-      <ScrollView
-        flex={1}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView flex={1} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Brand header */}
         <BrandGradient
           from="brandGrad1"
@@ -79,13 +75,7 @@ export function LoginScreen() {
             borderColor="$whiteA13"
           />
           <YStack pt={insets.top + 44} pb="$34" px="$26" ai="center">
-            <Text
-              col="$white"
-              fontSize="$21"
-              fontWeight="800"
-              ta="center"
-              letterSpacing={-0.4}
-            >
+            <Text col="$white" fontSize="$21" fontWeight="800" ta="center" letterSpacing={-0.4}>
               Monitoramento que{'\n'}transforma o agro
             </Text>
             <Text col="$whiteA82" fontSize="$12.5" mt="$8">
@@ -140,9 +130,7 @@ export function LoginScreen() {
                       <View
                         onPress={() => setShowPassword((v) => !v)}
                         accessibilityRole="button"
-                        accessibilityLabel={
-                          showPassword ? 'Ocultar senha' : 'Mostrar senha'
-                        }
+                        accessibilityLabel={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                         cursor="pointer"
                       >
                         {showPassword ? (
@@ -223,13 +211,7 @@ export function LoginScreen() {
 
           <Button variant="outline">Falar com o suporte</Button>
 
-          <MonoText
-            ta="center"
-            color="$text3"
-            fontSize="$10.5"
-            py="$18"
-            letterSpacing={0.4}
-          >
+          <MonoText ta="center" color="$text3" fontSize="$10.5" py="$18" letterSpacing={0.4}>
             {appConfig.company} · {appConfig.appVersion}
           </MonoText>
         </YStack>

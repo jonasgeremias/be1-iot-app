@@ -52,9 +52,7 @@ export function DevicesListScreen() {
     () =>
       sortedEntries.reduce(
         (acc, [, e]) =>
-          acc +
-          e.devices.filter((d) => deviceMatchesSearch(d, debouncedSearch))
-            .length,
+          acc + e.devices.filter((d) => deviceMatchesSearch(d, debouncedSearch)).length,
         0,
       ),
     [sortedEntries, debouncedSearch],

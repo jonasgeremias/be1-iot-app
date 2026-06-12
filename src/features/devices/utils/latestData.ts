@@ -13,31 +13,23 @@ export function getSccChambers(
   return latest?.deviceType === 'SCC' ? latest.data : null;
 }
 
-export function getCb200Snapshot(
-  latest: LatestData | undefined,
-): Cb200Snapshot | null {
+export function getCb200Snapshot(latest: LatestData | undefined): Cb200Snapshot | null {
   if (latest?.deviceType === 'PP' || latest?.deviceType === 'BULK') {
     return latest.data;
   }
   return null;
 }
 
-export function getSccCb200Data(
-  latest: LatestData | undefined,
-): Cb200Snapshot | null {
+export function getSccCb200Data(latest: LatestData | undefined): Cb200Snapshot | null {
   return latest?.deviceType === 'SCC' ? (latest.cb200Data ?? null) : null;
 }
 
-export function getSccDeviceSnapshot(
-  latest: LatestData | undefined,
-): SccDeviceSnapshot | null {
+export function getSccDeviceSnapshot(latest: LatestData | undefined): SccDeviceSnapshot | null {
   return latest?.deviceType === 'SCC' ? (latest.deviceSnapshot ?? null) : null;
 }
 
 /** Device-level snapshot (alarms) for any non-GRANO type. */
-export function getDeviceSnapshot(
-  latest: LatestData | undefined,
-): SccDeviceSnapshot | null {
+export function getDeviceSnapshot(latest: LatestData | undefined): SccDeviceSnapshot | null {
   if (
     latest?.deviceType === 'SCC' ||
     latest?.deviceType === 'PP' ||

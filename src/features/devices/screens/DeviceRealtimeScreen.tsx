@@ -1,5 +1,4 @@
-import { Ban, CloudOff, Pencil } from '@tamagui/lucide-icons';
-import { ChevronLeft } from '@tamagui/lucide-icons';
+import { Ban, CloudOff, Pencil , ChevronLeft } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { YStack, XStack } from 'tamagui';
@@ -34,10 +33,7 @@ import {
   getSccDeviceSnapshot,
 } from '../utils/latestData';
 import { formatMac, getStatusLabel } from '../utils/iotConstants';
-import {
-  timeRangePresets,
-  type TimeRangePresetOptions,
-} from '../utils/timeRangePresets';
+import { timeRangePresets, type TimeRangePresetOptions } from '../utils/timeRangePresets';
 
 function NoDeviceData() {
   return (
@@ -56,15 +52,18 @@ export function DeviceRealtimeScreen() {
   const deviceId = id ?? '';
   const router = useRouter();
 
-  const { device, isLoading: isLoadingDevice, isError: deviceError, refetch: refetchDevice } =
-    useIotDevice(deviceId);
+  const {
+    device,
+    isLoading: isLoadingDevice,
+    isError: deviceError,
+    refetch: refetchDevice,
+  } = useIotDevice(deviceId);
 
   const isScc = device?.deviceType === 'SCC';
   const isBulkLike = device?.deviceType === 'PP' || device?.deviceType === 'BULK';
 
   // ── live history (recent period, auto-refreshing) ──────────────────────────
-  const [timeRangeOption, setTimeRangeOption] =
-    useState<TimeRangePresetOptions>('1day');
+  const [timeRangeOption, setTimeRangeOption] = useState<TimeRangePresetOptions>('1day');
   const [timeOffset, setTimeOffset] = useState(0);
   const timeRange = timeRangePresets[timeRangeOption];
   const [selectedChamber, setSelectedChamber] = useState<string | null>(null);
@@ -75,9 +74,7 @@ export function DeviceRealtimeScreen() {
   const [savingName, setSavingName] = useState(false);
   const [newNickname, setNewNickname] = useState('');
   const { updateDeviceName } = useIotDevices();
-  const fallbackName = device
-    ? device.nickname || formatMac(device.macAddress)
-    : '';
+  const fallbackName = device ? device.nickname || formatMac(device.macAddress) : '';
   useEffect(() => {
     if (device) setNewNickname(device.nickname || formatMac(device.macAddress));
   }, [device]);
@@ -89,10 +86,7 @@ export function DeviceRealtimeScreen() {
     refetch: refetchLatest,
     isLoading: isLoadingLatest,
     dataUpdatedAt,
-  } = useIotLatestData(
-    deviceId,
-    isScc || isBulkLike ? LATEST_CARD_POLL_MS : undefined,
-  );
+  } = useIotLatestData(deviceId, isScc || isBulkLike ? LATEST_CARD_POLL_MS : undefined);
 
   const sccChambers = getSccChambers(latestData);
   const cb200Snapshot = getCb200Snapshot(latestData);
@@ -120,9 +114,7 @@ export function DeviceRealtimeScreen() {
     dataUpdatedAt,
   );
 
-  const chamberHistory = selectedChamber
-    ? (deviceHistory?.[selectedChamber] ?? [])
-    : [];
+  const chamberHistory = selectedChamber ? (deviceHistory?.[selectedChamber] ?? []) : [];
 
   // auto-refresh latest + history every 40s on the current period
   const refetchLatestRef = useRef(refetchLatest);
@@ -142,8 +134,7 @@ export function DeviceRealtimeScreen() {
     return () => clearInterval(t);
   }, [timeOffset]);
 
-  const moveTimeOffset = (move: 1 | -1) =>
-    setTimeOffset((prev) => Math.max(0, prev + move));
+  const moveTimeOffset = (move: 1 | -1) => setTimeOffset((prev) => Math.max(0, prev + move));
 
   const handleGoToLastDataPeriod = useCallback(() => {
     if (!lastFetch) return;
@@ -200,9 +191,7 @@ export function DeviceRealtimeScreen() {
   }
 
   const status = getStatusLabel(device.status);
-  const hasChamberData = sccChambers
-    ? Object.keys(sccChambers).some((k) => k !== '9')
-    : false;
+  const hasChamberData = sccChambers ? Object.keys(sccChambers).some((k) => k !== '9') : false;
 
   return (
     <Screen scroll tabBarSpacing>
@@ -212,7 +201,13 @@ export function DeviceRealtimeScreen() {
           <ChevronLeft size={19} color="$text" />
         </IconButton>
         <YStack flex={1} minWidth={0}>
-          <Text fontSize="$19" fontWeight="800" color="$text" numberOfLines={1} letterSpacing={-0.3}>
+          <Text
+            fontSize="$19"
+            fontWeight="800"
+            color="$text"
+            numberOfLines={1}
+            letterSpacing={-0.3}
+          >
             {device.nickname || fallbackName}
           </Text>
         </YStack>

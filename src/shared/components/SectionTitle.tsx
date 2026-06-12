@@ -7,18 +7,9 @@ type Props = {
   color?: '$text2' | '$text3';
 };
 
-export function SectionTitle({
-  children,
-  letterSpacing = 1,
-  color = '$text2',
-}: Props) {
+export function SectionTitle({ children, letterSpacing = 1, color = '$text2' }: Props) {
   return (
-    <Text
-      fontSize="$11"
-      fontWeight="800"
-      color={color}
-      letterSpacing={letterSpacing}
-    >
+    <Text fontSize="$11" fontWeight="800" color={color} letterSpacing={letterSpacing}>
       {children}
     </Text>
   );

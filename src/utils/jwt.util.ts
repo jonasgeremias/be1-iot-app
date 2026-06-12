@@ -8,8 +8,7 @@ interface JwtPayload {
   sub?: string;
 }
 
-const B64 =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 /** Decode base64url (RN-safe — does not rely on global atob). */
 function base64UrlDecode(input: string): string {
@@ -51,10 +50,7 @@ export function isTokenExpired(token: string): boolean {
 }
 
 /** True when the token expires within `thresholdMinutes` (default 5). */
-export function isTokenAboutToExpire(
-  token: string,
-  thresholdMinutes = 5,
-): boolean {
+export function isTokenAboutToExpire(token: string, thresholdMinutes = 5): boolean {
   const payload = decodeJwt(token);
   if (!payload?.exp) return true;
   return payload.exp * 1000 - Date.now() < thresholdMinutes * 60 * 1000;

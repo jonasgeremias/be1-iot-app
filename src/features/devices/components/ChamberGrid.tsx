@@ -77,12 +77,7 @@ function ChamberCard({
 }
 
 /** SCC 8+1 chamber grid — be1-app ChamberGrid. */
-export function ChamberGrid({
-  latestData,
-  isLoading,
-  selectedChamber,
-  onSelectChamber,
-}: Props) {
+export function ChamberGrid({ latestData, isLoading, selectedChamber, onSelectChamber }: Props) {
   const hasFurnace = !!latestData?.['9'];
 
   return (

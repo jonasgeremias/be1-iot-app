@@ -1,11 +1,4 @@
-import {
-  ChevronRight,
-  Clock,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-} from '@tamagui/lucide-icons';
+import { ChevronRight, Clock, Mail, MapPin, MessageCircle, Phone } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { Linking } from 'react-native';
 import { View, XStack, YStack } from 'tamagui';
@@ -130,20 +123,12 @@ export function SupportScreen() {
 
         <XStack gap="$11">
           <View flex={1}>
-            <Button
-              variant="outline"
-              onPress={openPhone}
-              icon={<Phone size={17} color="$brand" />}
-            >
+            <Button variant="outline" onPress={openPhone} icon={<Phone size={17} color="$brand" />}>
               Ligar
             </Button>
           </View>
           <View flex={1}>
-            <Button
-              variant="outline"
-              onPress={openEmail}
-              icon={<Mail size={17} color="$brand" />}
-            >
+            <Button variant="outline" onPress={openEmail} icon={<Mail size={17} color="$brand" />}>
               E-mail
             </Button>
           </View>

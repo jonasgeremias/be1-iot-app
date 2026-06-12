@@ -8,10 +8,7 @@ import { StorageKeys, type StorageKey } from './storage.keys';
  * Storage facade. Light prefs go to AsyncStorage; sensitive values (auth token)
  * go to SecureStore as recommended by the spec. Framework-agnostic — no React.
  */
-const SECURE_KEYS: StorageKey[] = [
-  StorageKeys.authToken,
-  StorageKeys.refreshToken,
-];
+const SECURE_KEYS: StorageKey[] = [StorageKeys.authToken, StorageKeys.refreshToken];
 
 function isSecure(key: StorageKey) {
   return SECURE_KEYS.includes(key);
@@ -20,9 +17,7 @@ function isSecure(key: StorageKey) {
 export const storage = {
   async get(key: StorageKey): Promise<string | null> {
     try {
-      return isSecure(key)
-        ? await SecureStore.getItemAsync(key)
-        : await AsyncStorage.getItem(key);
+      return isSecure(key) ? await SecureStore.getItemAsync(key) : await AsyncStorage.getItem(key);
     } catch (e) {
       logger.warn('storage', `get failed for ${key}`, e);
       return null;

@@ -1,10 +1,5 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import {
-  Activity,
-  Bell,
-  LineChart,
-  SlidersHorizontal,
-} from '@tamagui/lucide-icons';
+import { Activity, Bell, LineChart, SlidersHorizontal } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, XStack, YStack } from 'tamagui';
 

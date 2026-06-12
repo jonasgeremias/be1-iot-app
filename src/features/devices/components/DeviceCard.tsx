@@ -25,10 +25,7 @@ export function DeviceCard({ device, onPress }: Props) {
   const showMac = !!device.nickname;
 
   // Card-level real-time polling (be1-app §3.2).
-  const { latestData, lastFetch, isLoading } = useIotLatestData(
-    device.id,
-    LATEST_CARD_POLL_MS,
-  );
+  const { latestData, lastFetch, isLoading } = useIotLatestData(device.id, LATEST_CARD_POLL_MS);
 
   const reading = getReadingStatus(lastFetch, device.status);
   const status = getStatusLabel(device.status);
@@ -73,13 +70,7 @@ export function DeviceCard({ device, onPress }: Props) {
 
         <YStack flex={1} px="$14" py="$12" jc="center" gap="$4">
           <XStack ai="center" jc="space-between" gap="$8">
-            <Text
-              flex={1}
-              fontSize={15}
-              fontWeight="600"
-              color="$text"
-              numberOfLines={1}
-            >
+            <Text flex={1} fontSize={15} fontWeight="600" color="$text" numberOfLines={1}>
               {primaryLabel}
             </Text>
             <XStack
@@ -111,9 +102,7 @@ export function DeviceCard({ device, onPress }: Props) {
       <XStack width="100%" px="$14" py="$10" gap="$6" flexWrap="wrap">
         <Chip tone="brand" label={device.deviceType} />
         <Chip tone={status.tone} label={status.label} />
-        {showMac ? (
-          <Chip tone="neutral" mono label={formatMac(device.macAddress)} />
-        ) : null}
+        {showMac ? <Chip tone="neutral" mono label={formatMac(device.macAddress)} /> : null}
       </XStack>
     </Card>
   );

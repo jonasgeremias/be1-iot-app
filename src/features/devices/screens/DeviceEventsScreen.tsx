@@ -46,19 +46,11 @@ function fmtEventDate(iso: string): string {
 }
 
 function getEventKey(event: IotDeviceEvent, index: number): string {
-  const stableParts = [
-    event.id,
-    event.deviceId,
-    event.timeEmitted,
-    event.eventType,
-    event.severity,
-  ]
+  const stableParts = [event.id, event.deviceId, event.timeEmitted, event.eventType, event.severity]
     .map((part) => (part == null ? '' : String(part)))
     .filter(Boolean);
 
-  return stableParts.length > 0
-    ? `${stableParts.join('|')}|${index}`
-    : `device-event-${index}`;
+  return stableParts.length > 0 ? `${stableParts.join('|')}|${index}` : `device-event-${index}`;
 }
 
 function EventRow({ event }: { event: IotDeviceEvent }) {
@@ -67,9 +59,7 @@ function EventRow({ event }: { event: IotDeviceEvent }) {
   const Icon = meta.Icon;
   const hasMeta = event.metadata != null;
   const metaText =
-    typeof event.metadata === 'string'
-      ? event.metadata
-      : JSON.stringify(event.metadata, null, 2);
+    typeof event.metadata === 'string' ? event.metadata : JSON.stringify(event.metadata, null, 2);
 
   return (
     <Card
@@ -81,14 +71,7 @@ function EventRow({ event }: { event: IotDeviceEvent }) {
       gap="$8"
     >
       <XStack ai="center" gap="$10">
-        <XStack
-          width={32}
-          height={32}
-          br={16}
-          ai="center"
-          jc="center"
-          bg={meta.color + '22'}
-        >
+        <XStack width={32} height={32} br={16} ai="center" jc="center" bg={meta.color + '22'}>
           <Icon size={18} color={meta.color} />
         </XStack>
         <YStack flex={1} minWidth={0}>
@@ -144,32 +127,24 @@ export function DeviceEventsScreen() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
 
-  const initRange = useMemo(
-    () => EVENT_PRESETS.find((p) => p.key === '7d')!.range(),
-    [],
-  );
+  const initRange = useMemo(() => EVENT_PRESETS.find((p) => p.key === '7d')!.range(), []);
   const [activePreset, setActivePreset] = useState<string | null>('7d');
   const [range, setRange] = useState(initRange);
   const [fromDate, setFromDate] = useState<Date>(() => new Date(initRange.start));
   const [toDate, setToDate] = useState<Date>(() => new Date(initRange.end));
 
   const supported =
-    device?.deviceType === 'SCC' ||
-    device?.deviceType === 'PP' ||
-    device?.deviceType === 'BULK';
+    device?.deviceType === 'SCC' || device?.deviceType === 'PP' || device?.deviceType === 'BULK';
 
   // Load as soon as we have an id; only block once we KNOW it's an unsupported type.
-  const { data, isLoading, isError, refetch, isFetching } = useIotDeviceEvents(
-    deviceId,
-    {
-      severities,
-      start: range.start,
-      end: range.end,
-      page,
-      limit,
-      enabled: ready && isIotAdmin && (device == null || supported),
-    },
-  );
+  const { data, isLoading, isError, refetch, isFetching } = useIotDeviceEvents(deviceId, {
+    severities,
+    start: range.start,
+    end: range.end,
+    page,
+    limit,
+    enabled: ready && isIotAdmin && (device == null || supported),
+  });
 
   const applyPreset = (k: string) => {
     const r = EVENT_PRESETS.find((p) => p.key === k)!.range();
@@ -185,9 +160,7 @@ export function DeviceEventsScreen() {
     setPage(1);
   };
   const toggleSeverity = (s: IotEventSeverity) => {
-    setSeverities((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
-    );
+    setSeverities((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
     setPage(1);
   };
 
@@ -307,11 +280,7 @@ export function DeviceEventsScreen() {
               onPress={() => toggleSeverity(s)}
               cursor="pointer"
             >
-              <Text
-                fontSize={11.5}
-                fontWeight="700"
-                color={active ? m.color : '$text3'}
-              >
+              <Text fontSize={11.5} fontWeight="700" color={active ? m.color : '$text3'}>
                 {m.label}
               </Text>
             </View>
@@ -377,9 +346,7 @@ export function DeviceEventsScreen() {
             <IconButton
               accessibilityLabel="Próxima página"
               size="sm"
-              onPress={() =>
-                setPage((p) => (p < totalPages ? p + 1 : p))
-              }
+              onPress={() => setPage((p) => (p < totalPages ? p + 1 : p))}
               opacity={page >= totalPages || isFetching ? 0.4 : 1}
             >
               <ChevronRightIcon size={18} color="$text" />

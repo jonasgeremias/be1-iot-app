@@ -18,8 +18,7 @@ export function useLocations(stateId: string | null) {
   });
 
   const brazilId =
-    countries.data?.find((c: SelectOption) => c.label.toLowerCase() === 'brasil')
-      ?.value ?? null;
+    countries.data?.find((c: SelectOption) => c.label.toLowerCase() === 'brasil')?.value ?? null;
 
   const states = useQuery({
     queryKey: queryKeys.locations.states(brazilId ?? ''),

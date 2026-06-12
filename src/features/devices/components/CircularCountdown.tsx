@@ -63,15 +63,7 @@ export function CircularCountdown({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      <View
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        ai="center"
-        jc="center"
-      >
+      <View position="absolute" top={0} left={0} right={0} bottom={0} ai="center" jc="center">
         <MonoText fontSize={9} fontWeight="700" color={color}>
           {secondsLeft}
         </MonoText>

@@ -18,14 +18,7 @@ type Props = {
   accessibilityLabel: string;
 };
 
-export function AccessCard({
-  variant,
-  title,
-  subtitle,
-  icon,
-  onPress,
-  accessibilityLabel,
-}: Props) {
+export function AccessCard({ variant, title, subtitle, icon, onPress, accessibilityLabel }: Props) {
   const isPrimary = variant === 'primary';
 
   const inner = (

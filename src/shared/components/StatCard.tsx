@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { XStack, YStack } from 'tamagui';
+import { XStack } from 'tamagui';
 
 import { Card } from '@/shared/ui/Card';
 import { MonoText, Text } from '@/shared/ui/Text';
@@ -22,12 +22,7 @@ export function StatCard({ icon, iconBg, value, suffix, label, delta }: Props) {
           {icon}
         </XStack>
         {delta ? (
-          <XStack
-            bg={delta.tone === 'online' ? '$onlineSoft' : '$redSoft'}
-            px="$6"
-            py="$2"
-            br={5}
-          >
+          <XStack bg={delta.tone === 'online' ? '$onlineSoft' : '$redSoft'} px="$6" py="$2" br={5}>
             <Text
               fontSize="$10"
               fontWeight="800"

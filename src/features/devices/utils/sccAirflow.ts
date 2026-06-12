@@ -56,9 +56,7 @@ export function airflowOrder(
  * Fallback order when there is no actuator/arrow flow data: start at the hottest
  * chamber and follow the cyclic ring 1→2→…→8→1 (air leaving 8 enters 1).
  */
-export function hottestFirstCyclicOrder(
-  temps: (number | null | undefined)[],
-): number[] {
+export function hottestFirstCyclicOrder(temps: (number | null | undefined)[]): number[] {
   const n = temps.length;
   let hot = 0;
   let hotVal = -Infinity;

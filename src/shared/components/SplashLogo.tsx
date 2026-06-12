@@ -19,11 +19,7 @@ function Ring({ delay }: { delay: number }) {
   useEffect(() => {
     progress.value = withDelay(
       delay,
-      withRepeat(
-        withTiming(1, { duration: 2800, easing: Easing.out(Easing.ease) }),
-        -1,
-        false,
-      ),
+      withRepeat(withTiming(1, { duration: 2800, easing: Easing.out(Easing.ease) }), -1, false),
     );
   }, [delay, progress]);
 

@@ -3,12 +3,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 
 import { deviceService } from '../services/device.service';
-import {
-  countLeaves,
-  deepDiff,
-  setPath,
-  type SettingsTree,
-} from '../utils/settingsTree';
+import { countLeaves, deepDiff, setPath, type SettingsTree } from '../utils/settingsTree';
 
 /** Remote device settings state + mutations for the Configuracao tab. */
 export function useDeviceSettings(deviceId: string) {
@@ -29,8 +24,7 @@ export function useDeviceSettings(deviceId: string) {
       setHash(res.data.hash);
       setErrorMsg(null);
     },
-    onError: () =>
-      setErrorMsg('Erro de comunicacao. Verifique se o dispositivo esta online.'),
+    onError: () => setErrorMsg('Erro de comunicacao. Verifique se o dispositivo esta online.'),
   });
 
   const saveMut = useMutation({
@@ -69,18 +63,14 @@ export function useDeviceSettings(deviceId: string) {
 
   const fetch = () => {
     if (changedCount > 0) {
-      Alert.alert(
-        'Descartar alteracoes?',
-        `Voce tem ${changedCount} campo(s) alterado(s).`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Descartar e buscar',
-            style: 'destructive',
-            onPress: () => fetchMut.mutate(),
-          },
-        ],
-      );
+      Alert.alert('Descartar alteracoes?', `Voce tem ${changedCount} campo(s) alterado(s).`, [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Descartar e buscar',
+          style: 'destructive',
+          onPress: () => fetchMut.mutate(),
+        },
+      ]);
       return;
     }
     fetchMut.mutate();

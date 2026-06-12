@@ -15,6 +15,8 @@ module.exports = defineConfig([
       'web-build/',
       'android/',
       'ios/',
+      'design/',
+      'docs/',
     ],
   },
 ]);

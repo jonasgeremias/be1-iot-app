@@ -84,11 +84,7 @@ export function MainTabBar({ state, navigation }: BottomTabBarProps) {
             >
               <Icon size={22} color={color} />
             </View>
-            <Text
-              fontSize="$9.5"
-              fontWeight={focused ? '700' : '600'}
-              color={color}
-            >
+            <Text fontSize="$9.5" fontWeight={focused ? '700' : '600'} color={color}>
               {meta.label}
             </Text>
           </YStack>

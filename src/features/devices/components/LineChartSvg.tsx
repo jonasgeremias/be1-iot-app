@@ -1,9 +1,4 @@
-import Svg, {
-  Circle,
-  Line,
-  Polyline,
-  Text as SvgText,
-} from 'react-native-svg';
+import Svg, { Circle, Line, Polyline, Text as SvgText } from 'react-native-svg';
 
 export type ChartSeries = {
   data: number[];

@@ -12,10 +12,7 @@ import { Input } from '@/shared/ui/Input';
 import { MonoText, Text } from '@/shared/ui/Text';
 
 import { useForgotPassword } from '../hooks/useForgotPassword';
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordInput,
-} from '../schemas/auth.schema';
+import { forgotPasswordSchema, type ForgotPasswordInput } from '../schemas/auth.schema';
 
 const STEPS = [
   'Solicite o link pelo e-mail',
@@ -34,16 +31,11 @@ export function ForgotPasswordScreen() {
     mode: 'onTouched',
   });
 
-  const onSubmit = (values: ForgotPasswordInput) =>
-    forgot.mutate(values.email);
+  const onSubmit = (values: ForgotPasswordInput) => forgot.mutate(values.email);
 
   return (
     <Screen scroll bg="$bg">
-      <AppHeader
-        title="Recuperar conta"
-        titleSize="$17"
-        onBack={() => router.back()}
-      />
+      <AppHeader title="Recuperar conta" titleSize="$17" onBack={() => router.back()} />
 
       <YStack px="$22" pt="$14">
         <YStack ai="center" mt="$8">
@@ -54,8 +46,7 @@ export function ForgotPasswordScreen() {
             Esqueceu a senha?
           </Text>
           <Text fontSize="$13" color="$text2" mt="$8" ta="center" maxWidth={280} lineHeight={19}>
-            Informe o e-mail cadastrado e enviaremos um link para você redefinir o
-            acesso.
+            Informe o e-mail cadastrado e enviaremos um link para você redefinir o acesso.
           </Text>
         </YStack>
 
@@ -100,13 +91,7 @@ export function ForgotPasswordScreen() {
         </YStack>
 
         <Card radius={18} p="$15" mt="$26" elevated>
-          <Text
-            fontSize="$10.5"
-            fontWeight="800"
-            color="$text3"
-            letterSpacing={0.6}
-            mb="$12"
-          >
+          <Text fontSize="$10.5" fontWeight="800" color="$text3" letterSpacing={0.6} mb="$12">
             COMO FUNCIONA
           </Text>
           {STEPS.map((label, i) => {
@@ -121,19 +106,11 @@ export function ForgotPasswordScreen() {
                   jc="center"
                   bg={active ? '$brand' : '$surface3'}
                 >
-                  <MonoText
-                    fontSize="$12"
-                    fontWeight="800"
-                    color={active ? '$white' : '$text2'}
-                  >
+                  <MonoText fontSize="$12" fontWeight="800" color={active ? '$white' : '$text2'}>
                     {i + 1}
                   </MonoText>
                 </View>
-                <Text
-                  fontSize="$12.5"
-                  fontWeight="600"
-                  color={active ? '$text' : '$text2'}
-                >
+                <Text fontSize="$12.5" fontWeight="600" color={active ? '$text' : '$text2'}>
                   {label}
                 </Text>
               </XStack>

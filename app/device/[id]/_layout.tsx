@@ -9,10 +9,7 @@ export const unstable_settings = {
 /** Device-detail tab navigator (Tempo Real · Histórico · Eventos · Configuração). */
 export default function DeviceDetailLayout() {
   return (
-    <Tabs
-      tabBar={(props) => <DeviceTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
+    <Tabs tabBar={(props) => <DeviceTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: 'Tempo Real' }} />
       <Tabs.Screen name="history" options={{ title: 'Histórico' }} />
       <Tabs.Screen name="events" options={{ title: 'Eventos' }} />

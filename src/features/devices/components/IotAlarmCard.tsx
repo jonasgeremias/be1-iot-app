@@ -4,11 +4,7 @@ import { View, XStack, YStack } from 'tamagui';
 import { Card } from '@/shared/ui/Card';
 import { MonoText, Text } from '@/shared/ui/Text';
 
-import {
-  decodeSccAlarms,
-  sccAlarmsSeverity,
-  type SccAlarm,
-} from '../utils/sccAlarms';
+import { decodeSccAlarms, sccAlarmsSeverity, type SccAlarm } from '../utils/sccAlarms';
 
 type Props = {
   alarmsFlags: number;
@@ -59,13 +55,7 @@ export function IotAlarmCard({ alarmsFlags }: Props) {
       </XStack>
 
       {!hasAlarms ? (
-        <XStack
-          ai="center"
-          gap="$10"
-          bg="rgba(21,128,61,0.10)"
-          br={8}
-          p="$12"
-        >
+        <XStack ai="center" gap="$10" bg="rgba(21,128,61,0.10)" br={8} p="$12">
           <CheckCircle2 size={24} color="#15803D" />
           <YStack>
             <Text fontSize={14} fontWeight="700" color="#15803D">

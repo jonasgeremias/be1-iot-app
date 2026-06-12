@@ -7,11 +7,7 @@ export function isPlainObject(v: unknown): v is SettingsTree {
 }
 
 /** Immutable set at a nested path. */
-export function setPath(
-  obj: SettingsTree,
-  path: string[],
-  value: unknown,
-): SettingsTree {
+export function setPath(obj: SettingsTree, path: string[], value: unknown): SettingsTree {
   if (path.length === 0) return obj;
   const [head, ...rest] = path;
   const key = head!;
@@ -21,10 +17,7 @@ export function setPath(
 }
 
 /** Minimal patch (only changed leaves, preserving nesting). */
-export function deepDiff(
-  original: SettingsTree,
-  edited: SettingsTree,
-): SettingsTree {
+export function deepDiff(original: SettingsTree, edited: SettingsTree): SettingsTree {
   const out: SettingsTree = {};
   for (const key of Object.keys(edited)) {
     const o = original?.[key];
@@ -84,11 +77,10 @@ export const SETTINGS_SECTION_WARNINGS: Record<string, string> = {
 };
 
 /** Fields rendered as a Select with fixed options. */
-export const SELECT_FIELDS: Record<string, { value: string; label: string }[]> =
-  {
-    device_type: [
-      { value: 'SCC', label: 'SCC' },
-      { value: 'PP', label: 'PP' },
-      { value: 'BULK', label: 'BULK' },
-    ],
-  };
+export const SELECT_FIELDS: Record<string, { value: string; label: string }[]> = {
+  device_type: [
+    { value: 'SCC', label: 'SCC' },
+    { value: 'PP', label: 'PP' },
+    { value: 'BULK', label: 'BULK' },
+  ],
+};

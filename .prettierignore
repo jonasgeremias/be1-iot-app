@@ -6,6 +6,11 @@ web-build/
 android/
 ios/
 coverage/
+
+# Documentation / design reference (not app code)
+design/
+docs/
+
 *.lock
 package-lock.json
 expo-env.d.ts

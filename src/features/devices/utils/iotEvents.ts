@@ -1,9 +1,4 @@
-import {
-  CircleAlert,
-  Info,
-  ShieldAlert,
-  TriangleAlert,
-} from '@tamagui/lucide-icons';
+import { CircleAlert, Info, ShieldAlert, TriangleAlert } from '@tamagui/lucide-icons';
 import type { NamedExoticComponent } from 'react';
 
 import type { IotEventSeverity } from '../schemas/device.schema';
@@ -34,7 +29,9 @@ export function normalizeSeverity(raw: unknown): IotEventSeverity {
     if (raw === 2) return 'W';
     return 'I';
   }
-  const s = String(raw ?? '').trim().toUpperCase();
+  const s = String(raw ?? '')
+    .trim()
+    .toUpperCase();
   if (!s) return 'I';
   if (s.startsWith('C') || s === 'FATAL') return 'C';
   if (s.startsWith('E')) return 'E';
@@ -76,14 +73,29 @@ export type EventPreset = {
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000);
 const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000);
 const startOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
-const endOfMonth = (d: Date) =>
-  new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+const endOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
 
 export const EVENT_PRESETS: EventPreset[] = [
-  { key: '24h', label: 'Últimas 24h', range: () => ({ start: hoursAgo(24).toISOString(), end: new Date().toISOString() }) },
-  { key: '3d', label: '3 dias', range: () => ({ start: daysAgo(3).toISOString(), end: new Date().toISOString() }) },
-  { key: '7d', label: '7 dias', range: () => ({ start: daysAgo(7).toISOString(), end: new Date().toISOString() }) },
-  { key: '30d', label: '30 dias', range: () => ({ start: daysAgo(30).toISOString(), end: new Date().toISOString() }) },
+  {
+    key: '24h',
+    label: 'Últimas 24h',
+    range: () => ({ start: hoursAgo(24).toISOString(), end: new Date().toISOString() }),
+  },
+  {
+    key: '3d',
+    label: '3 dias',
+    range: () => ({ start: daysAgo(3).toISOString(), end: new Date().toISOString() }),
+  },
+  {
+    key: '7d',
+    label: '7 dias',
+    range: () => ({ start: daysAgo(7).toISOString(), end: new Date().toISOString() }),
+  },
+  {
+    key: '30d',
+    label: '30 dias',
+    range: () => ({ start: daysAgo(30).toISOString(), end: new Date().toISOString() }),
+  },
   {
     key: 'thisMonth',
     label: 'Este mês',

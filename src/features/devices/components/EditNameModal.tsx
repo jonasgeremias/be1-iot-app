@@ -15,14 +15,7 @@ type Props = {
 };
 
 /** Rename a device — be1-app EditNameModal. */
-export function EditNameModal({
-  visible,
-  value,
-  isLoading,
-  onChange,
-  onCancel,
-  onSave,
-}: Props) {
+export function EditNameModal({ visible, value, isLoading, onChange, onCancel, onSave }: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View flex={1} bg="rgba(0,0,0,0.45)" ai="center" jc="center" px="$16" onPress={onCancel}>
@@ -53,16 +46,10 @@ export function EditNameModal({
             height={46}
           />
           <YStack mt="$14" gap="$8">
-            <Button
-              onPress={isLoading ? undefined : onSave}
-              opacity={isLoading ? 0.6 : 1}
-            >
+            <Button onPress={isLoading ? undefined : onSave} opacity={isLoading ? 0.6 : 1}>
               {isLoading ? 'Salvando…' : 'Salvar'}
             </Button>
-            <Button
-              variant="ghost"
-              onPress={isLoading ? undefined : onCancel}
-            >
+            <Button variant="ghost" onPress={isLoading ? undefined : onCancel}>
               Cancelar
             </Button>
           </YStack>

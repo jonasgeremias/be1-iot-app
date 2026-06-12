@@ -30,10 +30,7 @@ export const profileService = {
     return parseUser(data, 'get');
   },
 
-  async updateProfile(
-    userId: string,
-    payload: ProfileUpdateInput,
-  ): Promise<ProfileUser> {
+  async updateProfile(userId: string, payload: ProfileUpdateInput): Promise<ProfileUser> {
     const { data } = await apiClient.post(`/users/update/${userId}`, payload);
     return parseUser(data, 'update');
   },

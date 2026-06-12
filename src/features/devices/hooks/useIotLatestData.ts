@@ -9,10 +9,7 @@ import { getLatestReadingDate } from '../utils/latestData';
 export const LATEST_CARD_POLL_MS = 30_000;
 
 /** Latest snapshot for a device, with the normalized last-reading timestamp. */
-export function useIotLatestData(
-  deviceId: string,
-  refetchInterval?: number | false,
-) {
+export function useIotLatestData(deviceId: string, refetchInterval?: number | false) {
   const query = useQuery({
     queryKey: queryKeys.devices.latest(deviceId),
     queryFn: () => deviceService.getLatestData(deviceId),

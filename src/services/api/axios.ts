@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { create } from 'axios';
 
 import { env } from '@/config/env';
 
@@ -9,7 +9,7 @@ import { attachInterceptors } from './interceptors';
  * this (e.g. `features/devices/services/device.service.ts`). Never imported
  * directly from screens/components — always via a hook → service.
  */
-export const apiClient = axios.create({
+export const apiClient = create({
   baseURL: env.API_URL,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },

@@ -1,6 +1,4 @@
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Calendar } from '@tamagui/lucide-icons';
 import { useState } from 'react';
 import { Modal, Platform } from 'react-native';
@@ -13,8 +11,7 @@ import { Card } from './Card';
 import { Text } from './Text';
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
-const fmtDmy = (d: Date) =>
-  `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+const fmtDmy = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
 
 type Props = {
   label?: string;
@@ -104,19 +101,8 @@ export function DateField({
           animationType="fade"
           onRequestClose={() => setShow(false)}
         >
-          <View
-            flex={1}
-            bg="rgba(0,0,0,0.45)"
-            jc="flex-end"
-            onPress={() => setShow(false)}
-          >
-            <Card
-              radius={20}
-              elevated
-              m="$12"
-              p="$12"
-              onPress={(e) => e.stopPropagation()}
-            >
+          <View flex={1} bg="rgba(0,0,0,0.45)" jc="flex-end" onPress={() => setShow(false)}>
+            <Card radius={20} elevated m="$12" p="$12" onPress={(e) => e.stopPropagation()}>
               <DateTimePicker
                 value={temp}
                 mode="date"

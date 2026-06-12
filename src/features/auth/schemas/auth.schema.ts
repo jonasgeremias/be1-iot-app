@@ -6,10 +6,7 @@ import { z } from 'zod';
  */
 export const loginSchema = z.object({
   email: z.string().min(1, 'Informe o e-mail ou CPF'),
-  password: z
-    .string()
-    .min(1, 'Informe a senha')
-    .min(6, 'Mínimo de 6 caracteres'),
+  password: z.string().min(1, 'Informe a senha').min(6, 'Mínimo de 6 caracteres'),
   remember: z.boolean(),
 });
 export type LoginInput = z.infer<typeof loginSchema>;

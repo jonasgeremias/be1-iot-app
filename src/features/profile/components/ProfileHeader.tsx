@@ -14,14 +14,7 @@ type Props = {
 };
 
 /** Avatar + name + role chip block at the top of the profile screen. */
-export function ProfileHeader({
-  name,
-  role,
-  location,
-  monogram,
-  imageUrl,
-  onEditAvatar,
-}: Props) {
+export function ProfileHeader({ name, role, location, monogram, imageUrl, onEditAvatar }: Props) {
   return (
     <YStack ai="center" gap="$8" pt="$6" pb="$2">
       <View position="relative">

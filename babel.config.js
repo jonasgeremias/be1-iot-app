@@ -3,9 +3,7 @@ module.exports = function (api) {
   // between dev and production, so the config must re-evaluate per environment.
   api.cache.using(() => process.env.NODE_ENV);
   return {
-    presets: [
-      ['babel-preset-expo', { jsxImportSource: 'react' }],
-    ],
+    presets: [['babel-preset-expo', { jsxImportSource: 'react' }]],
     plugins: [
       // Allows `@/*` alias resolution at runtime.
       [

@@ -38,11 +38,7 @@ export type DeviceEventsParams = {
  * schema mismatch logs a warning and falls back to the raw payload instead of
  * throwing, so a minor backend drift never bricks a screen.
  */
-function parseOr<S extends z.ZodTypeAny>(
-  schema: S,
-  data: unknown,
-  scope: string,
-): z.infer<S> {
+function parseOr<S extends z.ZodTypeAny>(schema: S, data: unknown, scope: string): z.infer<S> {
   const result = schema.safeParse(data);
   if (result.success) return result.data;
   logger.warn('device.service', `validation fallback: ${scope}`, {
@@ -67,11 +63,7 @@ export const deviceService = {
   },
 
   /** GET /iot/device/data — SCC per-chamber history (response.data.data). */
-  async getSccHistory(
-    deviceId: string,
-    start: string,
-    end: string,
-  ): Promise<DeviceHistory> {
+  async getSccHistory(deviceId: string, start: string, end: string): Promise<DeviceHistory> {
     const { data } = await apiClient.get('/iot/device/data', {
       params: { device: deviceId, start, end },
     });
@@ -79,11 +71,7 @@ export const deviceService = {
   },
 
   /** GET /iot/device/data — PP/BULK CB200 history (full response). */
-  async getBulkHistory(
-    deviceId: string,
-    start: string,
-    end: string,
-  ): Promise<BulkHistoryResponse> {
+  async getBulkHistory(deviceId: string, start: string, end: string): Promise<BulkHistoryResponse> {
     const { data } = await apiClient.get('/iot/device/data', {
       params: { device: deviceId, start, end },
     });
@@ -91,15 +79,9 @@ export const deviceService = {
   },
 
   /** GET /iot/device/events — paginated device events (SCC/PP/BULK). */
-  async getDeviceEvents(
-    params: DeviceEventsParams,
-  ): Promise<IotDeviceEventsResponse> {
+  async getDeviceEvents(params: DeviceEventsParams): Promise<IotDeviceEventsResponse> {
     const { data } = await apiClient.get('/iot/device/events', { params });
-    return parseOr(
-      iotDeviceEventsResponseSchema,
-      data,
-      'events',
-    ) as IotDeviceEventsResponse;
+    return parseOr(iotDeviceEventsResponseSchema, data, 'events') as IotDeviceEventsResponse;
   },
 
   /** GET /iot/device/settings — remote settings tree (admin). */
@@ -111,11 +93,7 @@ export const deviceService = {
       params: { deviceId, ...(timeoutMs != null ? { timeoutMs } : {}) },
       headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
     });
-    return parseOr(
-      iotDeviceSettingsResponseSchema,
-      data,
-      'settings',
-    ) as IotDeviceSettingsResponse;
+    return parseOr(iotDeviceSettingsResponseSchema, data, 'settings') as IotDeviceSettingsResponse;
   },
 
   /** PUT /iot/device/settings — apply a settings patch (admin). */
@@ -126,11 +104,7 @@ export const deviceService = {
     timeoutMs?: number;
   }): Promise<IotDeviceSettingsResponse> {
     const { data } = await apiClient.put('/iot/device/settings', payload);
-    return parseOr(
-      iotDeviceSettingsResponseSchema,
-      data,
-      'settings',
-    ) as IotDeviceSettingsResponse;
+    return parseOr(iotDeviceSettingsResponseSchema, data, 'settings') as IotDeviceSettingsResponse;
   },
 
   /** PUT /iot/devices/:id — rename a device. */

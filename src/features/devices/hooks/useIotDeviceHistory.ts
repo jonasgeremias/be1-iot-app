@@ -3,10 +3,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/constants/queryKeys.constants';
 
 import { deviceService } from '../services/device.service';
-import {
-  timeRangePresets,
-  type TimeRangePresetOptions,
-} from '../utils/timeRangePresets';
+import { timeRangePresets, type TimeRangePresetOptions } from '../utils/timeRangePresets';
 
 /** SCC per-chamber history for a time range/offset (be1-app useIotDeviceHistory). */
 export function useIotDeviceHistory(

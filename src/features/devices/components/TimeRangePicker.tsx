@@ -5,10 +5,7 @@ import { View, XStack, YStack } from 'tamagui';
 import { Card } from '@/shared/ui/Card';
 import { Text } from '@/shared/ui/Text';
 
-import {
-  TIME_RANGE_OPTIONS,
-  type TimeRangePresetOptions,
-} from '../utils/timeRangePresets';
+import { TIME_RANGE_OPTIONS, type TimeRangePresetOptions } from '../utils/timeRangePresets';
 
 type Props = {
   visible: boolean;
@@ -22,13 +19,7 @@ export function TimeRangePicker({ visible, selected, onClose, onSelect }: Props)
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View flex={1} bg="rgba(0,0,0,0.45)" jc="flex-end" onPress={onClose}>
-        <Card
-          br={20}
-          elevated
-          p="$16"
-          m="$12"
-          onPress={(e) => e.stopPropagation()}
-        >
+        <Card br={20} elevated p="$16" m="$12" onPress={(e) => e.stopPropagation()}>
           <Text fontSize={16} fontWeight="800" color="$text" mb="$12">
             Período
           </Text>

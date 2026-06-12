@@ -15,16 +15,9 @@ import { MonoText, Text } from '@/shared/ui/Text';
 
 import { LineChartSvg, type ChartSeries } from '../components/LineChartSvg';
 import { SccTempVariationChart } from '../components/SccTempVariationChart';
-import type {
-  ChamberSnapshot,
-  Cb200DataPoint,
-  HistoryPoint,
-} from '../schemas/device.schema';
+import type { ChamberSnapshot, Cb200DataPoint, HistoryPoint } from '../schemas/device.schema';
 import { useIotDevice } from '../hooks/useIotDevice';
-import {
-  useIotBulkHistoryRange,
-  useIotSccHistoryRange,
-} from '../hooks/useIotHistoryRange';
+import { useIotBulkHistoryRange, useIotSccHistoryRange } from '../hooks/useIotHistoryRange';
 import { useIotLatestData } from '../hooks/useIotLatestData';
 import { fmtDayMonthHourMin } from '../utils/iotDates';
 import { formatMac } from '../utils/iotConstants';
@@ -38,9 +31,7 @@ const dayEndISO = (d: Date) =>
 function buildXLabels(times: string[]): string[] {
   const n = times.length;
   const step = Math.max(1, Math.ceil(n / 5));
-  return times.map((t, i) =>
-    (n - 1 - i) % step === 0 ? fmtDayMonthHourMin(new Date(t)) : '',
-  );
+  return times.map((t, i) => ((n - 1 - i) % step === 0 ? fmtDayMonthHourMin(new Date(t)) : ''));
 }
 
 // 9 distinct chamber colors (1..8 + return).
@@ -133,7 +124,11 @@ function BulkChart({ points }: { points: Cb200DataPoint[] }) {
           segments={6}
           series={[
             { data: points.map((p) => p.temperature ?? NaN), color: TEMP_COLOR },
-            { data: points.map((p) => p.stTemperature ?? NaN), color: TEMP_SET_COLOR, withDots: false },
+            {
+              data: points.map((p) => p.stTemperature ?? NaN),
+              color: TEMP_SET_COLOR,
+              withDots: false,
+            },
             { data: points.map((p) => p.humidity ?? NaN), color: HUM_COLOR },
             { data: points.map((p) => p.stHumidity ?? NaN), color: HUM_SET_COLOR, withDots: false },
           ]}
@@ -156,9 +151,7 @@ export function DeviceHistoryScreen() {
   const isScc = deviceType === 'SCC';
   const isBulkLike = deviceType === 'PP' || deviceType === 'BULK';
 
-  const [fromDate, setFromDate] = useState(
-    () => new Date(Date.now() - 7 * 86_400_000),
-  );
+  const [fromDate, setFromDate] = useState(() => new Date(Date.now() - 7 * 86_400_000));
   const [toDate, setToDate] = useState(() => new Date());
   const [range, setRange] = useState(() => ({
     start: dayStartISO(new Date(Date.now() - 7 * 86_400_000)),
@@ -266,10 +259,7 @@ export function DeviceHistoryScreen() {
   const bulkPoints: Cb200DataPoint[] = bulkQuery.data?.data ?? [];
 
   const refKey = chamberKeys.reduce(
-    (best, k) =>
-      (sccHistory?.[k]?.length ?? 0) > (sccHistory?.[best]?.length ?? 0)
-        ? k
-        : best,
+    (best, k) => ((sccHistory?.[k]?.length ?? 0) > (sccHistory?.[best]?.length ?? 0) ? k : best),
     chamberKeys[0] ?? '',
   );
   const refPoints: HistoryPoint[] = sccHistory?.[refKey] ?? [];
@@ -290,9 +280,7 @@ export function DeviceHistoryScreen() {
 
   const isEmpty = isScc ? chamberKeys.length === 0 : bulkPoints.length === 0;
   const momentTime =
-    moment != null && times[moment]
-      ? fmtDayMonthHourMin(new Date(times[moment]!))
-      : '';
+    moment != null && times[moment] ? fmtDayMonthHourMin(new Date(times[moment]!)) : '';
 
   return (
     <Screen scroll tabBarSpacing>
@@ -355,13 +343,7 @@ export function DeviceHistoryScreen() {
           onPress={onBuscar}
           disabled={isFetching}
           opacity={isFetching ? 0.7 : 1}
-          icon={
-            isFetching ? (
-              <Spinner color="$white" />
-            ) : (
-              <Search size={17} color="$white" />
-            )
-          }
+          icon={isFetching ? <Spinner color="$white" /> : <Search size={17} color="$white" />}
         >
           {isFetching ? 'Buscando…' : 'Buscar'}
         </Button>

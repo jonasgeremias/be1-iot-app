@@ -4,14 +4,7 @@ import { fmtDayHourLit, fmtHourLitMin } from './iotDates';
  * History time-range presets, ported from be1-app. Uses native Date math
  * (offset = how many periods back from "now").
  */
-export type TimeRangePresetOptions =
-  | '30min'
-  | '1h'
-  | '3h'
-  | '6h'
-  | '1day'
-  | '7days'
-  | '15days';
+export type TimeRangePresetOptions = '30min' | '1h' | '3h' | '6h' | '1day' | '7days' | '15days';
 
 export type TimeRangePreset = {
   label: string;
@@ -33,8 +26,7 @@ function relativePreset(
   return {
     label,
     formatTick,
-    getEnd: (offset = 0) =>
-      offset === 0 ? null : new Date(Date.now() - offset * spanMs),
+    getEnd: (offset = 0) => (offset === 0 ? null : new Date(Date.now() - offset * spanMs)),
     getStart: (offset = 0) => new Date(Date.now() - (offset + 1) * spanMs),
   };
 }

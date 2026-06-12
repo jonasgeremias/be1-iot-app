@@ -86,13 +86,7 @@ export function Select({
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
         <View flex={1} bg="rgba(0,0,0,0.45)" jc="flex-end" onPress={close}>
-          <Card
-            br={20}
-            elevated
-            m="$12"
-            maxHeight="70%"
-            onPress={(e) => e.stopPropagation()}
-          >
+          <Card br={20} elevated m="$12" maxHeight="70%" onPress={(e) => e.stopPropagation()}>
             {searchable ? (
               <XStack
                 ai="center"

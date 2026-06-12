@@ -1,11 +1,7 @@
 import { apiClient } from '@/services/api/axios';
 import { logger } from '@/services/logger/logger';
 
-import {
-  sessionSchema,
-  type LoginInput,
-  type Session,
-} from '../schemas/auth.schema';
+import { sessionSchema, type LoginInput, type Session } from '../schemas/auth.schema';
 
 /**
  * Auth domain service — real backend (be1-app parity).

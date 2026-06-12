@@ -92,13 +92,7 @@ export function Sparkline({
         />
       ))}
       {dots.map((d, i) => (
-        <Circle
-          key={`d${i}`}
-          cx={d.cx}
-          cy={d.cy}
-          r={d.r ?? 3.4}
-          fill={c(d.color)}
-        />
+        <Circle key={`d${i}`} cx={d.cx} cy={d.cy} r={d.r ?? 3.4} fill={c(d.color)} />
       ))}
     </Svg>
   );

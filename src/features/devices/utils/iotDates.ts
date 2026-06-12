@@ -20,8 +20,7 @@ const MONTHS_PT = [
   'dez',
 ];
 
-const toDate = (d: Date | string): Date =>
-  typeof d === 'string' ? new Date(d) : d;
+const toDate = (d: Date | string): Date => (typeof d === 'string' ? new Date(d) : d);
 
 /** "14:05" (HH:mm, padded). */
 export const fmtHourColonMin = (d: Date | string): string => {
@@ -81,8 +80,7 @@ export function formatIotReadingDate(date: Date | string | undefined): string {
     return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
   }
 
-  const startOfDay = (x: Date) =>
-    new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
   const today = startOfDay(now);
   const target = startOfDay(d);
   const dayMs = 86_400_000;

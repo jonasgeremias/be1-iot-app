@@ -8,7 +8,7 @@ There are two authoritative inputs. Do not treat them as equal:
 - **Architecture authority → `docs/technical-spec.md`.** This governs the stack, folder
   structure, naming, and all `MUST`/`NEVER` rules. The implementation MUST conform to it.
 - **Visual authority → `design/melhoria-visual-app/`.** HTML/CSS/JS prototypes that define
-  the exact look (layout, spacing, colors, typography, states). Recreate the *visual output*;
+  the exact look (layout, spacing, colors, typography, states). Recreate the _visual output_;
   do NOT copy the prototype's internal structure.
 
 When the two could conflict (e.g. the prototype puts everything in one file), the **visuals
@@ -19,6 +19,7 @@ win for appearance** and the **spec wins for code organization**. Reconcile, nev
 ## Step 1 — Load the architecture (do this first)
 
 Read `docs/technical-spec.md` in full. Internalize, in particular:
+
 - Stack: Expo + React Native + TypeScript, Expo Router, **Tamagui** (UI + tokens), Zustand
   (UI/session state only), TanStack React Query (all server data), Axios, React Hook Form + Zod,
   Lucide icons, Reanimated + Gesture Handler, Socket.IO (realtime), AsyncStorage, Realm.
@@ -43,6 +44,7 @@ If `docs/technical-spec.md` is missing or unreadable, STOP and tell the user bef
    all dimensions, colors, and layout rules are in the source.
 
 Produce a **Design Inventory** (output it to the user before coding):
+
 - **Screens** found and what each does.
 - **Reusable UI primitives** (buttons, inputs, cards, badges, tabs, etc.) → candidates for
   `src/shared/ui/` as Tamagui components.

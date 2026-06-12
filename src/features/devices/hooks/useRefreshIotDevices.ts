@@ -6,6 +6,5 @@ import { queryKeys } from '@/constants/queryKeys.constants';
 export function useRefreshIotDevices() {
   const queryClient = useQueryClient();
 
-  return () =>
-    void queryClient.invalidateQueries({ queryKey: queryKeys.devices.all });
+  return () => void queryClient.invalidateQueries({ queryKey: queryKeys.devices.all });
 }

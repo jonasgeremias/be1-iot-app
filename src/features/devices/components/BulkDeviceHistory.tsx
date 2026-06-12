@@ -76,7 +76,11 @@ export function BulkDeviceHistory({ deviceId, referenceDate }: Props) {
           xLabels={xLabels}
           series={[
             { data: points.map((p) => p.temperature ?? NaN), color: TEMP_COLOR },
-            { data: points.map((p) => p.stTemperature ?? NaN), color: TEMP_SET_COLOR, withDots: false },
+            {
+              data: points.map((p) => p.stTemperature ?? NaN),
+              color: TEMP_SET_COLOR,
+              withDots: false,
+            },
             { data: points.map((p) => p.humidity ?? NaN), color: HUM_COLOR },
             { data: points.map((p) => p.stHumidity ?? NaN), color: HUM_SET_COLOR, withDots: false },
           ]}
@@ -106,11 +110,7 @@ export function BulkDeviceHistory({ deviceId, referenceDate }: Props) {
                 onPress={() => setPreset(p.key)}
                 cursor="pointer"
               >
-                <Text
-                  fontSize={12}
-                  fontWeight="600"
-                  color={active ? '$white' : '$text2'}
-                >
+                <Text fontSize={12} fontWeight="600" color={active ? '$white' : '$text2'}>
                   {p.label}
                 </Text>
               </View>

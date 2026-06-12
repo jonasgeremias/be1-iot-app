@@ -64,13 +64,7 @@ type Props = GetProps<typeof ButtonFrame> & {
   iconAfter?: ReactNode;
 };
 
-export function Button({
-  variant = 'primary',
-  children,
-  icon,
-  iconAfter,
-  ...rest
-}: Props) {
+export function Button({ variant = 'primary', children, icon, iconAfter, ...rest }: Props) {
   const color = variant === 'primary' ? '$white' : '$text';
   const fontSize = variant === 'primary' ? '$15' : '$13.5';
   return (

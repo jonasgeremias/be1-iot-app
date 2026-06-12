@@ -10,7 +10,6 @@ export function useUpdateAvatar() {
 
   return useMutation({
     mutationFn: (asset: AvatarAsset) => profileService.updateAvatar(asset),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.profile.me }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.profile.me }),
   });
 }

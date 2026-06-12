@@ -12,8 +12,7 @@ export const queryKeys = {
     list: (filter?: string) => ['devices', 'list', filter ?? 'all'] as const,
     detail: (id: string) => ['devices', 'detail', id] as const,
     config: (id: string) => ['devices', 'config', id] as const,
-    history: (id: string, period?: string) =>
-      ['devices', 'history', id, period ?? '7d'] as const,
+    history: (id: string, period?: string) => ['devices', 'history', id, period ?? '7d'] as const,
     // IoT (real backend) keys
     grouped: ['devices', 'grouped'] as const,
     latest: (id: string) => ['devices', 'latest', id] as const,
@@ -21,8 +20,7 @@ export const queryKeys = {
       ['devices', 'sccHistory', id, range, offset] as const,
     bulkHistory: (id: string, preset: string, ref: string) =>
       ['devices', 'bulkHistory', id, preset, ref] as const,
-    events: (id: string, key: string) =>
-      ['devices', 'events', id, key] as const,
+    events: (id: string, key: string) => ['devices', 'events', id, key] as const,
     settings: (id: string) => ['devices', 'settings', id] as const,
   },
   profile: {

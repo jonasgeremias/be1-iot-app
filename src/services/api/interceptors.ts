@@ -1,8 +1,4 @@
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
 import { isTokenAboutToExpire, isTokenExpired } from '@/utils/jwt.util';
 import { useAuthStore } from '@/store/auth.store';
@@ -45,11 +41,7 @@ function makeRefresher(client: AxiosInstance) {
       throw new Error('Refresh token inválido/expirado');
     }
     const cfg: AuthConfig = { skipAuthRefresh: true };
-    const { data } = await client.post(
-      '/refresh-token',
-      { token: refreshToken },
-      cfg,
-    );
+    const { data } = await client.post('/refresh-token', { token: refreshToken }, cfg);
     await storage.set(StorageKeys.authToken, data.token);
     if (data.refreshToken) {
       await storage.set(StorageKeys.refreshToken, data.refreshToken);
@@ -90,12 +82,7 @@ export function attachInterceptors(client: AxiosInstance) {
       const original = error?.config as AuthInternalConfig | undefined;
       const status = error?.response?.status ?? 0;
 
-      if (
-        status === 401 &&
-        original &&
-        !original._retry &&
-        !original.skipAuthRefresh
-      ) {
+      if (status === 401 && original && !original._retry && !original.skipAuthRefresh) {
         original._retry = true;
         try {
           refreshPromise ??= refreshAccessToken().finally(() => {
@@ -111,10 +98,7 @@ export function attachInterceptors(client: AxiosInstance) {
 
       const normalized: ApiError = {
         status,
-        message:
-          error?.response?.data?.message ??
-          error?.message ??
-          'Erro de comunicação',
+        message: error?.response?.data?.message ?? error?.message ?? 'Erro de comunicação',
         code: error?.response?.data?.code,
       };
       logger.error('api', normalized.message, { status });

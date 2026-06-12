@@ -12,8 +12,7 @@ export function useUpdateProfile(userId: string | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ProfileUpdateInput) =>
-      profileService.updateProfile(userId!, payload),
+    mutationFn: (payload: ProfileUpdateInput) => profileService.updateProfile(userId!, payload),
     onSuccess: (_data, variables) => {
       // keep the cached name (used by the dashboard greeting) fresh
       if (variables.name) void storage.set(StorageKeys.userName, variables.name);

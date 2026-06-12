@@ -35,15 +35,7 @@ export function MiniSccPreview({ chambers, isLoading }: Props) {
   }
 
   const Cell = ({ k, h }: { k: string; h: number }) => (
-    <View
-      width={CELL}
-      height={h}
-      br={3}
-      mr={GAP}
-      ai="center"
-      jc="center"
-      bg={colorFor(k)}
-    >
+    <View width={CELL} height={h} br={3} mr={GAP} ai="center" jc="center" bg={colorFor(k)}>
       <MonoText fontSize={9} fontWeight="700" color="#FFFFFF">
         {labelFor(k)}
       </MonoText>

@@ -20,8 +20,8 @@
 
 ## 🔴 Alta prioridade
 
-- [ ] **Dashboard — carrossel de destaques**: ainda mockado. *Bloqueado: não existe endpoint na API.*
-- [ ] **Dashboard — notificações (sino + contador)**: mockado. *Será feito depois.*
+- [ ] **Dashboard — carrossel de destaques**: ainda mockado. _Bloqueado: não existe endpoint na API._
+- [ ] **Dashboard — notificações (sino + contador)**: mockado. _Será feito depois._
 - [ ] **Assistências (support)**: feature inteira mockada. Acesso está oculto; ligar à API quando os endpoints existirem.
 
 ## ⏸️ Adiado (faremos depois, com requisitos)
@@ -29,7 +29,7 @@
 - [ ] **GRANO** — Configuração (silo/regras de excelência/parâmetros remotos), Histórico (tabela paginada `POST /iot/grano/self/history` + export PDF/Excel) e Eventos (não existe no web). Requer `subDeviceId`. Ver `docs/requisitos-iot-dispositivo.md`.
 - [ ] **Export PDF/Excel** (histórico GRANO) no mobile — precisaria de `expo-file-system`/`expo-sharing`.
 - [ ] **Configuração — campos enumerados/validações finas** além do genérico (boolean/number/string/select), e o CRUD admin do device (aba extra do web).
-- [ ] **Notificações push**: be1-app registra `expoToken` no login e faz `DELETE /push/tokens` no logout. *Não será feito agora.*
+- [ ] **Notificações push**: be1-app registra `expoToken` no login e faz `DELETE /push/tokens` no logout. _Não será feito agora._
 
 > Detalhes completos dos requisitos das telas em **`docs/requisitos-iot-dispositivo.md`**.
 

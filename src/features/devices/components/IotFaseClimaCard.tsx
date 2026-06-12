@@ -53,11 +53,7 @@ export function IotFaseClimaCard({ phase, climate }: Props) {
               const active = p.value === phase;
               return (
                 <XStack key={p.value} ai="center" gap="$4" flex={1}>
-                  {active ? (
-                    <Play size={14} color="$text" />
-                  ) : (
-                    <View width={14} />
-                  )}
+                  {active ? <Play size={14} color="$text" /> : <View width={14} />}
                   <Text
                     fontSize={11}
                     color={active ? '$text' : '$text3'}

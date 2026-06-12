@@ -18,9 +18,7 @@ type Props = {
 export function GroupSection({ entry, searchQuery, onDevicePress }: Props) {
   const [expanded, setExpanded] = useState(true);
 
-  const filtered = entry.devices.filter((d) =>
-    deviceMatchesSearch(d, searchQuery),
-  );
+  const filtered = entry.devices.filter((d) => deviceMatchesSearch(d, searchQuery));
 
   if (filtered.length === 0) return null;
 
@@ -76,11 +74,7 @@ export function GroupSection({ entry, searchQuery, onDevicePress }: Props) {
 
       {isOpen
         ? filtered.map((device) => (
-            <DeviceCard
-              key={device.id}
-              device={device}
-              onPress={() => onDevicePress(device)}
-            />
+            <DeviceCard key={device.id} device={device} onPress={() => onDevicePress(device)} />
           ))
         : null}
     </YStack>

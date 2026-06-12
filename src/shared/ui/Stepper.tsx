@@ -13,12 +13,7 @@ type Props = {
   accessibilityLabel: string;
 };
 
-export function Stepper({
-  displayValue,
-  onIncrement,
-  onDecrement,
-  accessibilityLabel,
-}: Props) {
+export function Stepper({ displayValue, onIncrement, onDecrement, accessibilityLabel }: Props) {
   return (
     <XStack
       ai="center"
@@ -44,13 +39,7 @@ export function Stepper({
           −
         </Text>
       </View>
-      <MonoText
-        minWidth={60}
-        ta="center"
-        fontSize="$14"
-        fontWeight="800"
-        color="$text"
-      >
+      <MonoText minWidth={60} ta="center" fontSize="$14" fontWeight="800" color="$text">
         {displayValue}
       </MonoText>
       <View

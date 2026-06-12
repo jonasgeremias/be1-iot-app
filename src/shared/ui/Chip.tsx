@@ -1,8 +1,7 @@
 import type { GetProps } from 'tamagui';
 import { styled, XStack } from 'tamagui';
 
-import { Text } from './Text';
-import { MonoText } from './Text';
+import { Text , MonoText } from './Text';
 
 /**
  * Small label chip — the SCC / Ativo / status / MAC tags and filter pills.

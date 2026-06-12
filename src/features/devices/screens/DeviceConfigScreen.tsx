@@ -1,11 +1,4 @@
-import {
-  Ban,
-  ChevronLeft,
-  Lock,
-  RefreshCw,
-  Save,
-  SlidersHorizontal,
-} from '@tamagui/lucide-icons';
+import { Ban, ChevronLeft, Lock, RefreshCw, Save, SlidersHorizontal } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { Spinner, View, XStack, YStack } from 'tamagui';
 
@@ -33,9 +26,7 @@ export function DeviceConfigScreen() {
   const settings = useDeviceSettings(deviceId);
 
   const supported =
-    device?.deviceType === 'SCC' ||
-    device?.deviceType === 'PP' ||
-    device?.deviceType === 'BULK';
+    device?.deviceType === 'SCC' || device?.deviceType === 'PP' || device?.deviceType === 'BULK';
 
   const header = (
     <XStack px="$16" pt="$4" pb="$8" ai="center" gap="$12">
@@ -116,8 +107,7 @@ export function DeviceConfigScreen() {
               <SlidersHorizontal size={26} color="$brand" />
             </View>
             <Text fontSize={14} color="$text2" ta="center">
-              As configuracoes sao lidas do dispositivo via MQTT. Toque em
-              Buscar para carregar.
+              As configuracoes sao lidas do dispositivo via MQTT. Toque em Buscar para carregar.
             </Text>
             <Button
               onPress={settings.fetchNow}
@@ -161,11 +151,7 @@ export function DeviceConfigScreen() {
                 disabled={settings.changedCount === 0 || settings.isSaving}
                 opacity={settings.changedCount === 0 || settings.isSaving ? 0.6 : 1}
                 icon={
-                  settings.isSaving ? (
-                    <Spinner color="$white" />
-                  ) : (
-                    <Save size={16} color="$white" />
-                  )
+                  settings.isSaving ? <Spinner color="$white" /> : <Save size={16} color="$white" />
                 }
               >
                 {settings.isSaving ? 'Salvando...' : 'Salvar'}

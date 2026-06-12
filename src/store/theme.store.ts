@@ -37,9 +37,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   hydrate: async (systemMode) => {
     const saved = await storage.get(StorageKeys.themePreference);
     const preference: ThemePreference =
-      saved === 'dark' || saved === 'light' || saved === 'system'
-        ? saved
-        : 'system';
+      saved === 'dark' || saved === 'light' || saved === 'system' ? saved : 'system';
 
     set({
       preference,

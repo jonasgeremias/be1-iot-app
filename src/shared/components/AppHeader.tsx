@@ -41,12 +41,7 @@ export function AppHeader({
         </IconButton>
       ) : null}
       <YStack flex={1} minWidth={0} ai={centered ? 'center' : 'flex-start'}>
-        <Text
-          fontSize={titleSize}
-          fontWeight="800"
-          color="$text"
-          letterSpacing={-0.3}
-        >
+        <Text fontSize={titleSize} fontWeight="800" color="$text" letterSpacing={-0.3}>
           {title}
         </Text>
         {subtitle ? (

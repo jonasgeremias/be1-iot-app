@@ -4,10 +4,7 @@ import { useEffect, useState } from 'react';
  * Seconds remaining until the next refetch, derived from react-query's
  * `dataUpdatedAt` and the polling interval (be1-app §2.1).
  */
-export function useRefetchCountdown(
-  intervalMs: number,
-  dataUpdatedAt: number | undefined,
-) {
+export function useRefetchCountdown(intervalMs: number, dataUpdatedAt: number | undefined) {
   const compute = () => {
     if (!dataUpdatedAt) return Math.ceil(intervalMs / 1000);
     const elapsed = Date.now() - dataUpdatedAt;

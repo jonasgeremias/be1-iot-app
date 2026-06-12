@@ -12,8 +12,8 @@ import { createFont } from 'tamagui';
 
 // Exact font sizes observed in the prototype.
 const sizes = [
-  9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 16, 16.5, 17,
-  18, 19, 20, 21, 23, 25, 28, 34,
+  9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 16, 16.5, 17, 18, 19, 20, 21, 23,
+  25, 28, 34,
 ] as const;
 
 function buildScale(ratio: number) {

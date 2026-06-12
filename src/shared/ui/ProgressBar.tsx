@@ -26,13 +26,7 @@ export function ProgressBar({
   const theme = useTheme();
   const pct = Math.max(0, Math.min(100, value));
   return (
-    <View
-      height={height}
-      br={5}
-      bg="$track"
-      position="relative"
-      overflow="visible"
-    >
+    <View height={height} br={5} bg="$track" position="relative" overflow="visible">
       <View
         position="absolute"
         left={0}

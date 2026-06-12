@@ -21,11 +21,7 @@ export function IotSopradorCard({ on }: Props) {
     <Card br={12} elevated={false} flex={1} p="$12" gap="$8">
       <XStack ai="center" gap="$8">
         <XStack width={36} height={36} br={18} ai="center" jc="center" bg={iconBg}>
-          {isOn ? (
-            <Wind size={22} color={color} />
-          ) : (
-            <Power size={22} color={color} />
-          )}
+          {isOn ? <Wind size={22} color={color} /> : <Power size={22} color={color} />}
         </XStack>
         <Text
           fontSize={11}
