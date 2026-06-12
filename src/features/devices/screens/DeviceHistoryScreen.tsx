@@ -193,8 +193,9 @@ export function DeviceHistoryScreen() {
           time: p.time,
           temperature: p.temperature,
           humidity: p.humidity,
-          hotAirActuatorState: null,
-          returnAirActuatorState: null,
+          hotAirActuatorState: p.hotAirActuatorState ?? null,
+          returnAirActuatorState: p.returnAirActuatorState ?? null,
+          arrows: p.arrows,
         };
       }
     }

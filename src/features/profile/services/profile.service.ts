@@ -1,5 +1,8 @@
+import { env } from '@/config/env';
 import { apiClient } from '@/services/api/axios';
 import { logger } from '@/services/logger/logger';
+import { storage } from '@/services/storage/storage';
+import { StorageKeys } from '@/services/storage/storage.keys';
 
 import {
   profileUserSchema,
@@ -35,11 +38,39 @@ export const profileService = {
     return parseUser(data, 'update');
   },
 
+  /**
+   * PATCH /users/update/avatar (multipart). Per the API contract the file field
+   * must be named exactly `file`, and the Content-Type must NOT be set manually
+   * (RN/fetch adds the multipart boundary). Uses fetch + the stored bearer token
+   * so the boundary is handled correctly.
+   */
   async updateAvatar(asset: AvatarAsset): Promise<void> {
+    const token = await storage.get(StorageKeys.authToken);
     const form = new FormData();
-    form.append('avatar', asset as unknown as Blob);
-    await apiClient.patch('/users/update/avatar', form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    form.append('file', {
+      uri: asset.uri,
+      name: asset.name,
+      type: asset.type,
+    } as unknown as Blob);
+
+    const res = await fetch(`${env.API_URL}/users/update/avatar`, {
+      method: 'PATCH',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form,
     });
+
+    if (!res.ok) {
+      let message = 'Falha ao atualizar a foto.';
+      try {
+        const body = (await res.json()) as { message?: string };
+        if (body?.message) message = body.message;
+      } catch {
+        // ignore non-JSON error bodies
+      }
+      logger.warn('profile.service', 'avatar upload failed', {
+        status: res.status,
+      });
+      throw new Error(message);
+    }
   },
 };

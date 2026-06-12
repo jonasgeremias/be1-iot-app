@@ -16,7 +16,7 @@ import { Card } from '@/shared/ui/Card';
 import { MonoText, Text } from '@/shared/ui/Text';
 
 import type { ChamberSnapshot } from '../schemas/device.schema';
-import { airflowOrder } from '../utils/sccAirflow';
+import { firstAirflowChambers, hottestFirstCyclicOrder } from '../utils/sccAirflow';
 import { getTemperatureColor } from '../utils/temperatureColor';
 
 type Chambers = Record<string, ChamberSnapshot> | null | undefined;
@@ -38,12 +38,15 @@ const HEIGHT = 220;
 function buildPoints(chambers: Chambers, scale: 'celsius' | 'fahrenheit') {
   const hot: (number | null | undefined)[] = [];
   const ret: (number | null | undefined)[] = [];
+  const temps: (number | null | undefined)[] = [];
   for (let i = 0; i < 8; i++) {
     const snap = chambers?.[String(i + 1)];
     hot.push(snap?.hotAirActuatorState ?? null);
     ret.push(snap?.returnAirActuatorState ?? null);
+    temps.push(snap?.temperature ?? null);
   }
-  const order = airflowOrder(hot, ret);
+  // Use the real airflow when available, else order by hottest → cyclic 1→8.
+  const order = firstAirflowChambers(hot, ret) ?? hottestFirstCyclicOrder(temps);
   const points: ChartPoint[] = [];
   for (const idx of order) {
     const t = chambers?.[String(idx + 1)]?.temperature;

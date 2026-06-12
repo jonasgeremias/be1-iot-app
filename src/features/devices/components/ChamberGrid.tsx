@@ -4,6 +4,7 @@ import { MonoText } from '@/shared/ui/Text';
 
 import type { ChamberSnapshot } from '../schemas/device.schema';
 import { getTemperatureColor } from '../utils/temperatureColor';
+import { SccArrowsStrip } from './SccArrowsStrip';
 
 type Chambers = Record<string, ChamberSnapshot> | null | undefined;
 
@@ -23,12 +24,14 @@ function ChamberCard({
   isLoading,
   isSelected,
   onPress,
+  row,
 }: {
   chamberIndex: number;
   data: ChamberSnapshot | undefined;
   isLoading: boolean;
   isSelected: boolean;
   onPress: () => void;
+  row?: 'top' | 'bottom';
 }) {
   const color = data ? getTemperatureColor(data.temperature) : '#E5E7EB';
   const label = chamberIndex === 9 ? 'R' : String(chamberIndex);
@@ -45,7 +48,12 @@ function ChamberCard({
         br={8}
         borderColor={color}
         borderWidth={isSelected ? 3 : 1}
+        position="relative"
       >
+        {/* airflow arrows (not on the return/furnace cell) */}
+        {row && chamberIndex !== 9 && !isLoading ? (
+          <SccArrowsStrip arrows={data?.arrows} scale={0.7} row={row} />
+        ) : null}
         {isLoading ? (
           <Spinner color="$brand" />
         ) : (
@@ -104,6 +112,7 @@ export function ChamberGrid({
               isLoading={isLoading}
               isSelected={selectedChamber === String(n)}
               onPress={() => onSelectChamber(String(n))}
+              row="top"
             />
           ))}
         </XStack>
@@ -116,6 +125,7 @@ export function ChamberGrid({
               isLoading={isLoading}
               isSelected={selectedChamber === String(n)}
               onPress={() => onSelectChamber(String(n))}
+              row="bottom"
             />
           ))}
         </XStack>

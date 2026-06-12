@@ -14,6 +14,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 
 import { ErrorState } from '@/shared/components/ErrorState';
@@ -118,22 +119,64 @@ export function ProfileScreen() {
     onlyDigits(cpf).length === 11 &&
     onlyDigits(phone).length === 11;
 
-  const pickAvatar = async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return;
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
+  const uploadPicked = async (res: ImagePicker.ImagePickerResult) => {
     if (res.canceled || !res.assets?.[0]) return;
     const a = res.assets[0];
-    await avatar.mutateAsync({
-      uri: a.uri,
-      name: a.fileName ?? 'avatar.jpg',
-      type: a.mimeType ?? 'image/jpeg',
-    });
+    try {
+      await avatar.mutateAsync({
+        uri: a.uri,
+        name: a.fileName ?? `avatar_${a.assetId ?? 'photo'}.jpg`,
+        type: a.mimeType ?? 'image/jpeg',
+      });
+    } catch {
+      Alert.alert('Erro', 'Não foi possível atualizar a foto. Tente novamente.');
+    }
+  };
+
+  const pickFromGallery = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(
+        'Permissão necessária',
+        'Permita o acesso às fotos para escolher uma imagem.',
+      );
+      return;
+    }
+    await uploadPicked(
+      await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      }),
+    );
+  };
+
+  const pickFromCamera = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(
+        'Permissão necessária',
+        'Permita o acesso à câmera para tirar uma foto.',
+      );
+      return;
+    }
+    await uploadPicked(
+      await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      }),
+    );
+  };
+
+  const chooseAvatar = () => {
+    Alert.alert('Foto de perfil', 'Escolha a origem da imagem', [
+      { text: 'Tirar foto', onPress: () => void pickFromCamera() },
+      { text: 'Escolher da galeria', onPress: () => void pickFromGallery() },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
   };
 
   const handleSave = async () => {
@@ -186,7 +229,7 @@ export function ProfileScreen() {
           location={location}
           monogram={monogramOf(data.name)}
           imageUrl={imageUrl}
-          onEditAvatar={() => void pickAvatar()}
+          onEditAvatar={chooseAvatar}
         />
 
         {/* Personal info */}

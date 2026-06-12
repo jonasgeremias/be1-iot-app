@@ -123,10 +123,23 @@ export type LatestData = z.infer<typeof latestDataSchema>;
 // ── SCC history (GET /iot/device/data → { data: Record<chamber, points> }) ────
 export const historyPointSchema = z.object({
   time: z.string(),
+  serverTime: z.string().optional(),
   temperature: z.number().nullable(),
   humidity: z.number().nullable(),
+  // SCC history carries the full snapshot — actuator states drive airflow order.
+  hotAirActuatorState: z.number().nullish(),
+  returnAirActuatorState: z.number().nullish(),
+  arrows: z.array(sccArrowSchema).optional(),
 });
-export type HistoryPoint = z.infer<typeof historyPointSchema>;
+export type HistoryPoint = {
+  time: string;
+  serverTime?: string;
+  temperature: number | null;
+  humidity: number | null;
+  hotAirActuatorState?: number | null;
+  returnAirActuatorState?: number | null;
+  arrows?: SccArrow[];
+};
 
 export const deviceHistorySchema = z.record(
   z.string(),
