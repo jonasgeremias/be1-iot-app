@@ -6,6 +6,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
+import { ProfileButton } from '@/shared/components/ProfileButton';
 import { SearchInput } from '@/shared/components/SearchInput';
 import { Screen } from '@/shared/layouts/Screen';
 import { Text } from '@/shared/ui/Text';
@@ -65,13 +66,16 @@ export function DevicesListScreen() {
           <Text fontSize="$20" fontWeight="800" color="$text" letterSpacing={-0.3}>
             Monitoramento
           </Text>
-          <CircularCountdown
-            secondsLeft={secondsLeft}
-            totalSeconds={totalSeconds}
-            progress={progress}
-            clickDelaySec={0}
-            onPress={refreshNow}
-          />
+          <XStack ai="center" gap="$12">
+            <CircularCountdown
+              secondsLeft={secondsLeft}
+              totalSeconds={totalSeconds}
+              progress={progress}
+              clickDelaySec={0}
+              onPress={refreshNow}
+            />
+            <ProfileButton />
+          </XStack>
         </XStack>
         {hasAnyDevices ? (
           <YStack mt="$10">

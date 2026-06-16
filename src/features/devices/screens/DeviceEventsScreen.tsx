@@ -18,6 +18,7 @@ import { Screen } from '@/shared/layouts/Screen';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { DateField } from '@/shared/ui/DateField';
+import { ProfileButton } from '@/shared/components/ProfileButton';
 import { IconButton } from '@/shared/ui/IconButton';
 import { SegmentedControl } from '@/shared/ui/SegmentedControl';
 import { MonoText, Text } from '@/shared/ui/Text';
@@ -184,6 +185,7 @@ export function DeviceEventsScreen() {
           </Text>
         ) : null}
       </YStack>
+      <ProfileButton />
     </XStack>
   );
 

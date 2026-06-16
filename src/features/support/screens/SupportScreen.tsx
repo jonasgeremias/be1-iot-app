@@ -4,6 +4,7 @@ import { Linking } from 'react-native';
 import { View, XStack, YStack } from 'tamagui';
 
 import { AppHeader } from '@/shared/components/AppHeader';
+import { ProfileButton } from '@/shared/components/ProfileButton';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { ListRow } from '@/shared/components/ListRow';
 import { LoadingState } from '@/shared/components/LoadingState';
@@ -24,7 +25,7 @@ export function SupportScreen() {
   if (isError) {
     return (
       <Screen tabBarSpacing>
-        <AppHeader title="Assistências" onBack={() => router.back()} />
+        <AppHeader title="Assistências" onBack={() => router.back()} right={<ProfileButton />} />
         <ErrorState onRetry={() => void refetch()} />
       </Screen>
     );
@@ -32,7 +33,7 @@ export function SupportScreen() {
   if (isLoading || !data) {
     return (
       <Screen tabBarSpacing>
-        <AppHeader title="Assistências" onBack={() => router.back()} />
+        <AppHeader title="Assistências" onBack={() => router.back()} right={<ProfileButton />} />
         <LoadingState />
       </Screen>
     );
@@ -49,6 +50,7 @@ export function SupportScreen() {
         title="Assistências"
         subtitle="Fale com o suporte BE1"
         onBack={() => router.back()}
+        right={<ProfileButton />}
       />
 
       <YStack px="$16" gap="$13" pt="$2">

@@ -1,4 +1,5 @@
 export { AppHeader } from './AppHeader';
+export { ProfileButton } from './ProfileButton';
 export { SearchInput } from './SearchInput';
 export { SectionTitle } from './SectionTitle';
 export { Sparkline } from './Sparkline';

@@ -7,6 +7,7 @@ export const routes = {
   devices: '/(main)/devices',
   profile: '/(main)/profile',
   assist: '/(main)/assist',
+  notifications: '/(main)/notifications',
   deviceDetail: (id: string) => `/device/${id}` as const,
   deviceConfig: (id: string) => `/device/${id}/config` as const,
   deviceHistory: (id: string) => `/device/${id}/history` as const,
