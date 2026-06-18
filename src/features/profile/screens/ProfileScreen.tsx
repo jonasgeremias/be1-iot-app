@@ -1,6 +1,8 @@
 import {
+  Bell,
   Calendar,
   ChevronLeft,
+  ChevronRight,
   CreditCard,
   LogOut,
   Mail,
@@ -9,12 +11,13 @@ import {
   Pencil,
   Phone,
   User,
+  Wrench,
   X,
 } from '@tamagui/lucide-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, useColorScheme } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 
 import { ErrorState } from '@/shared/components/ErrorState';
@@ -26,9 +29,9 @@ import { Card } from '@/shared/ui/Card';
 import { DateField } from '@/shared/ui/DateField';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
+import { SegmentedControl, type SegmentOption } from '@/shared/ui/SegmentedControl';
 import { Select } from '@/shared/ui/Select';
 import { Separator } from '@/shared/ui/Separator';
-import { Switch } from '@/shared/ui/Switch';
 import { Text } from '@/shared/ui/Text';
 import { useThemeStore } from '@/store/theme.store';
 import { formatCPF, formatDateBr, formatPhone, monogramOf, onlyDigits } from '@/utils/format.util';
@@ -41,6 +44,14 @@ import { useProfile } from '../hooks/useProfile';
 import { useUpdateAvatar } from '../hooks/useUpdateAvatar';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
 import type { ProfileUpdateInput } from '../schemas/profile.schema';
+
+type Appearance = 'light' | 'auto' | 'dark';
+
+const APPEARANCE_OPTIONS: SegmentOption<Appearance>[] = [
+  { value: 'light', label: 'Claro' },
+  { value: 'auto', label: 'Automático' },
+  { value: 'dark', label: 'Escuro' },
+];
 
 const parseDate = (s?: string | null): Date | null => {
   if (!s) return null;
@@ -60,8 +71,20 @@ export function ProfileScreen() {
   const update = useUpdateProfile(userId);
   const avatar = useUpdateAvatar();
   const logout = useLogout();
-  const mode = useThemeStore((s) => s.mode);
   const setMode = useThemeStore((s) => s.setMode);
+  const applySystemMode = useThemeStore((s) => s.useSystemMode);
+  const preference = useThemeStore((s) => s.preference);
+  const systemScheme = useColorScheme();
+
+  const appearanceValue: Appearance = preference === 'system' ? 'auto' : preference;
+  const appearanceSubtitle =
+    appearanceValue === 'auto'
+      ? 'Automático · segue o sistema'
+      : `Modo ${appearanceValue === 'dark' ? 'escuro' : 'claro'}`;
+  const onAppearanceChange = (v: Appearance) => {
+    if (v === 'auto') applySystemMode(systemScheme === 'dark' ? 'dark' : 'light');
+    else setMode(v);
+  };
 
   const [editing, setEditing] = useState(false);
 
@@ -354,22 +377,62 @@ export function ProfileScreen() {
           </Button>
         )}
 
-        {/* Appearance */}
+        {/* Quick actions */}
         <Card radius={18} elevated>
           <ListRow
-            icon={<Moon size={17} color="$brand" />}
+            icon={<Bell size={17} color="$brand" />}
             iconBg="$brandSoft"
             iconSize={32}
-            title="Modo escuro"
-            subtitle={mode === 'dark' ? 'Ativado' : 'Desativado'}
-            right={
-              <Switch
-                value={mode === 'dark'}
-                onValueChange={(v) => setMode(v ? 'dark' : 'light')}
-                accessibilityLabel="Modo escuro"
-              />
-            }
+            title="Notificações"
+            subtitle="Alertas e avisos do monitoramento"
+            right={<ChevronRight size={18} color="$text3" />}
+            onPress={() => router.push('/(main)/notifications')}
+            accessibilityLabel="Abrir notificações"
           />
+          <Separator mx="$15" />
+          <ListRow
+            icon={<Wrench size={17} color="$brand" />}
+            iconBg="$brandSoft"
+            iconSize={32}
+            title="Contato Assistência Técnica"
+            subtitle="Fale com o suporte BE1"
+            right={<ChevronRight size={18} color="$text3" />}
+            onPress={() => router.push('/(main)/assist')}
+            accessibilityLabel="Abrir contato da assistência técnica"
+          />
+        </Card>
+
+        {/* Appearance */}
+        <Card radius={18} elevated>
+          <YStack px="$15" py="$13" gap="$12">
+            <XStack ai="center" gap="$13">
+              <XStack
+                width={32}
+                height={32}
+                br={9}
+                ai="center"
+                jc="center"
+                bg="$brandSoft"
+                flexShrink={0}
+              >
+                <Moon size={17} color="$brand" />
+              </XStack>
+              <YStack flex={1} minWidth={0}>
+                <Text fontSize="$13.5" fontWeight="700" color="$text">
+                  Aparência
+                </Text>
+                <Text fontSize="$10.5" fontWeight="600" color="$text3">
+                  {appearanceSubtitle}
+                </Text>
+              </YStack>
+            </XStack>
+            <SegmentedControl
+              variant="solid"
+              options={APPEARANCE_OPTIONS}
+              value={appearanceValue}
+              onChange={onAppearanceChange}
+            />
+          </YStack>
         </Card>
 
         {/* Logout */}

@@ -13,7 +13,7 @@ type ThemeState = {
   hydrated: boolean;
   setMode: (mode: ThemeMode) => void;
   setSystemMode: (mode: ThemeMode) => void;
-  useSystemMode: () => void;
+  useSystemMode: (systemMode?: ThemeMode) => void;
   toggle: () => void;
   hydrate: (systemMode: ThemeMode) => Promise<void>;
 };
@@ -29,8 +29,8 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   setSystemMode: (mode) => {
     if (get().preference === 'system') set({ mode });
   },
-  useSystemMode: () => {
-    set({ preference: 'system' });
+  useSystemMode: (systemMode) => {
+    set((s) => ({ preference: 'system', mode: systemMode ?? s.mode }));
     void storage.set(StorageKeys.themePreference, 'system');
   },
   toggle: () => get().setMode(get().mode === 'light' ? 'dark' : 'light'),

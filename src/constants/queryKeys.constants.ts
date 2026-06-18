@@ -34,4 +34,7 @@ export const queryKeys = {
   support: {
     info: ['support', 'info'] as const,
   },
+  notifications: {
+    list: ['notifications', 'list'] as const,
+  },
 } as const;

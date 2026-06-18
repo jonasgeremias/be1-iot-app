@@ -7,6 +7,7 @@ import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { ProfileButton } from '@/shared/components/ProfileButton';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 
@@ -35,7 +36,7 @@ export function DeviceConfigScreen() {
       </IconButton>
       <YStack flex={1} minWidth={0}>
         <Text fontSize="$19" fontWeight="800" color="$text" letterSpacing={-0.3}>
-          Configuracao
+          Configuração
         </Text>
         {device ? (
           <Text fontSize="$11" color="$text3" numberOfLines={1}>
@@ -43,6 +44,7 @@ export function DeviceConfigScreen() {
           </Text>
         ) : null}
       </YStack>
+      <ProfileButton />
     </XStack>
   );
 

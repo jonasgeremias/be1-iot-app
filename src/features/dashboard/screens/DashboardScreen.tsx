@@ -1,20 +1,14 @@
-import { Bell, BellOff, Rss, Wrench } from '@tamagui/lucide-icons';
+import { Rss, Wrench } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Modal } from 'react-native';
-import { View, XStack, YStack } from 'tamagui';
+import { XStack, YStack } from 'tamagui';
 
 import { Carousel } from '@/shared/components/Carousel';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
+import { ProfileButton } from '@/shared/components/ProfileButton';
 import { Screen } from '@/shared/layouts/Screen';
-import { Avatar } from '@/shared/ui/Avatar';
-import { Button } from '@/shared/ui/Button';
-import { Card } from '@/shared/ui/Card';
-import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 import { useCurrentUserName } from '@/hooks/useCurrentUserName';
-import { monogramOf } from '@/utils/format.util';
 import { getGreeting } from '@/utils/greeting.util';
 
 import { AccessCard } from '../components/AccessCard';
@@ -28,7 +22,6 @@ export function DashboardScreen() {
   const summary = useDashboardSummary();
   const highlights = useHighlights();
   const userName = useCurrentUserName();
-  const [notifOpen, setNotifOpen] = useState(false);
 
   if (summary.isError || highlights.isError) {
     return (
@@ -54,7 +47,6 @@ export function DashboardScreen() {
   const s = summary.data;
   const displayName = userName?.trim() || s.accountName;
   const greeting = getGreeting();
-  const monogram = userName?.trim() ? monogramOf(userName) : s.monogram;
   const deviceCount = s.deviceCount;
   const groupCount = s.groupCount;
 
@@ -76,16 +68,7 @@ export function DashboardScreen() {
             {displayName}
           </Text>
         </YStack>
-        <XStack gap="$10" ai="center">
-          <IconButton
-            accessibilityLabel="Notificações"
-            size="lg"
-            onPress={() => setNotifOpen(true)}
-          >
-            <Bell size={20} color="$text2" />
-          </IconButton>
-          <Avatar initials={monogram} size={42} radius={13} fontSize={14} />
-        </XStack>
+        <ProfileButton size={42} radius={13} />
       </XStack>
 
       <YStack px="$16" gap="$12">
@@ -114,44 +97,6 @@ export function DashboardScreen() {
           />
         </YStack>
       </YStack>
-
-      <Modal
-        visible={notifOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setNotifOpen(false)}
-      >
-        <View
-          flex={1}
-          bg="rgba(0,0,0,0.45)"
-          ai="center"
-          jc="center"
-          px="$16"
-          onPress={() => setNotifOpen(false)}
-        >
-          <Card
-            radius={20}
-            elevated
-            p="$20"
-            ai="center"
-            gap="$10"
-            width="100%"
-            maxWidth={360}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View width={64} height={64} br={32} bg="$surface3" ai="center" jc="center">
-              <BellOff size={30} color="$text3" />
-            </View>
-            <Text fontSize="$17" fontWeight="800" color="$text">
-              Nenhuma notificação
-            </Text>
-            <Text fontSize="$13" color="$text2" ta="center">
-              Você está em dia. Novos avisos aparecerão aqui.
-            </Text>
-            <Button onPress={() => setNotifOpen(false)}>Fechar</Button>
-          </Card>
-        </View>
-      </Modal>
     </Screen>
   );
 }

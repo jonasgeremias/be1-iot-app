@@ -7,6 +7,7 @@ import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
 import { Chip } from '@/shared/ui/Chip';
+import { ProfileButton } from '@/shared/components/ProfileButton';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Text } from '@/shared/ui/Text';
 
@@ -218,6 +219,7 @@ export function DeviceRealtimeScreen() {
         >
           <Pencil size={17} color="$brand" />
         </IconButton>
+        <ProfileButton />
       </XStack>
 
       {/* meta chips */}

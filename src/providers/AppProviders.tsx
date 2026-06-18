@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState, type ReactNode } from 'react';
+import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TamaguiProvider, Theme, YStack } from 'tamagui';
@@ -45,6 +46,22 @@ function SessionGate({ children }: { children: ReactNode }) {
  */
 export function AppProviders({ children }: { children: ReactNode }) {
   const mode = useThemeStore((s) => s.mode);
+  const hydrated = useThemeStore((s) => s.hydrated);
+  const hydrate = useThemeStore((s) => s.hydrate);
+  const setSystemMode = useThemeStore((s) => s.setSystemMode);
+  const colorScheme = useColorScheme();
+  const systemMode: 'light' | 'dark' = colorScheme === 'dark' ? 'dark' : 'light';
+
+  // Restore the saved preference once, seeding "system" with the device scheme.
+  useEffect(() => {
+    if (!hydrated) void hydrate(systemMode);
+  }, [hydrated, hydrate, systemMode]);
+
+  // Keep "Automático" in sync as the device switches between light/dark.
+  useEffect(() => {
+    setSystemMode(systemMode);
+  }, [systemMode, setSystemMode]);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
