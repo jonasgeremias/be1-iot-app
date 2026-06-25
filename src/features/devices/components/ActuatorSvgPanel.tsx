@@ -1,5 +1,5 @@
 import { Lock } from '@tamagui/lucide-icons';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import { SvgXml } from 'react-native-svg';
 import Animated, {
   cancelAnimation,
@@ -54,8 +54,13 @@ const SLOW_ON_MS = 300;
 const SLOW_OFF_MS = 1700;
 const SLOW_EDGE_MS = 150;
 
-/** LED sobreposto: base dim sólida + camada acesa com opacidade animada (0..1). */
-function OverlayLed({
+/**
+ * LED sobreposto: base dim sólida + camada acesa com opacidade animada (0..1).
+ * `memo` é essencial: sem ele, cada toque de seleção re-renderiza os 32 LEDs
+ * (com hooks do Reanimated). As props são primitivas estáveis, então só os LEDs
+ * cujo `mode` muda (telemetria) re-renderizam.
+ */
+const OverlayLed = memo(function OverlayLed({
   cx,
   cy,
   r,
@@ -110,7 +115,7 @@ function OverlayLed({
       />
     </View>
   );
-}
+});
 
 type Props = {
   cells: ActuatorCell[];
