@@ -19,6 +19,7 @@ import { ChamberGrid } from '../components/ChamberGrid';
 import { ChamberHistoryChart } from '../components/ChamberHistoryChart';
 import { EditNameModal } from '../components/EditNameModal';
 import { IotAlarmCard } from '../components/IotAlarmCard';
+import { SccBlueprintCard } from '../components/SccBlueprintCard';
 import { SccCb200Card } from '../components/SccCb200Card';
 import { SccTempVariationChart } from '../components/SccTempVariationChart';
 import { TimeRangePicker } from '../components/TimeRangePicker';
@@ -258,6 +259,10 @@ export function DeviceRealtimeScreen() {
                 isLoading={isLoadingLatest}
                 selectedChamber={selectedChamber}
                 onSelectChamber={setSelectedChamber}
+              />
+              <SccBlueprintCard
+                chambers={sccChambers}
+                scale={sccCb200Data?.celsius ? 'celsius' : 'fahrenheit'}
               />
               <ChamberHistoryChart
                 chamberHistory={chamberHistory}
