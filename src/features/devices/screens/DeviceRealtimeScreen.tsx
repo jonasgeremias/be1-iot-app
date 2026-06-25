@@ -1,4 +1,4 @@
-import { Ban, CloudOff, Pencil, ChevronLeft } from '@tamagui/lucide-icons';
+import { Ban, CloudOff, Pencil, ChevronLeft, ToggleRight } from '@tamagui/lucide-icons';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { YStack, XStack } from 'tamagui';
@@ -6,6 +6,7 @@ import { YStack, XStack } from 'tamagui';
 import { ErrorState } from '@/shared/components/ErrorState';
 import { LoadingState } from '@/shared/components/LoadingState';
 import { Screen } from '@/shared/layouts/Screen';
+import { Button } from '@/shared/ui/Button';
 import { Chip } from '@/shared/ui/Chip';
 import { ProfileButton } from '@/shared/components/ProfileButton';
 import { IconButton } from '@/shared/ui/IconButton';
@@ -244,6 +245,14 @@ export function DeviceRealtimeScreen() {
         {isScc ? (
           isLoadingLatest || hasChamberData ? (
             <>
+              <Button
+                variant="outline"
+                icon={<ToggleRight size={18} color="$brand" />}
+                onPress={() => router.push(`/device/command/${deviceId}`)}
+                accessibilityLabel="Abrir caixa de comando"
+              >
+                Caixa de Comando
+              </Button>
               <ChamberGrid
                 latestData={sccChambers}
                 isLoading={isLoadingLatest}

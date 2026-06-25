@@ -271,3 +271,16 @@ export const deviceConfigSchema = z.object({
   ip: z.string(),
 });
 export type DeviceConfig = z.infer<typeof deviceConfigSchema>;
+
+// ── actuator command (POST /iot/device/actuators) ─────────────────────────────
+/**
+ * Payload de acionamento da caixa de comando, espelhando o que o backend repassa
+ * ao firmware (`devices/{TYPE}/{MAC}/act`). Exatamente um dos dois mapas:
+ * `actuatorsMap` (`true` = toque, `false` = parar) ou `actuatorsMapLongPress`
+ * (segundos; `0` = mantém até parar). Chaves = índice do atuador (1..16).
+ */
+export const actuatorCommandSchema = z.union([
+  z.object({ actuatorsMap: z.record(z.string(), z.boolean()) }),
+  z.object({ actuatorsMapLongPress: z.record(z.string(), z.number().int().min(0)) }),
+]);
+export type ActuatorCommand = z.infer<typeof actuatorCommandSchema>;

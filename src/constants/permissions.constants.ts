@@ -7,4 +7,6 @@ export const IotPermissions = {
   viewDevices: 'iotDevices',
   /** Admin: can manage/configure devices (gates the Configuração tab). */
   admin: 'iotLinkDevices',
+  /** Can remotely actuate the command box (SCC actuators). */
+  controlActuators: 'iotControlActuators',
 } as const;

@@ -4,6 +4,7 @@ import { apiClient } from '@/services/api/axios';
 import { logger } from '@/services/logger/logger';
 
 import {
+  actuatorCommandSchema,
   bulkHistoryResponseSchema,
   deviceConfigSchema,
   deviceHistorySchema,
@@ -12,6 +13,7 @@ import {
   iotDeviceSettingsResponseSchema,
   iotDevicesGroupedSchema,
   latestDataSchema,
+  type ActuatorCommand,
   type BulkHistoryResponse,
   type DeviceConfig,
   type DeviceHistory,
@@ -111,6 +113,16 @@ export const deviceService = {
   async updateDeviceName(id: string, nickname: string): Promise<IotDevice> {
     const { data } = await apiClient.put(`/iot/devices/${id}`, { nickname });
     return parseOr(iotDeviceSchema, data, 'updateName');
+  },
+
+  /**
+   * POST /iot/scc/actuators — envia um comando de atuador (caixa de comando, só
+   * SCC). O backend publica em `devices/{TYPE}/{MAC}/act` (fire-and-forget); o
+   * app re-busca o latest depois. Valida o payload localmente antes de enviar.
+   */
+  async sendActuatorCommand(deviceId: string, command: ActuatorCommand): Promise<void> {
+    const payload = actuatorCommandSchema.parse(command);
+    await apiClient.post('/iot/scc/actuators', { device: deviceId, ...payload });
   },
 
   /**

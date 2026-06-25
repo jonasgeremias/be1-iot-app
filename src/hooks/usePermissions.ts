@@ -30,5 +30,9 @@ export function usePermissions() {
     permissions,
     ready,
     isIotAdmin: permissions.includes(IotPermissions.admin),
+    /** Pode acionar a caixa de comando (atuadores do SCC); admin é override. */
+    canControlActuators:
+      permissions.includes(IotPermissions.controlActuators) ||
+      permissions.includes(IotPermissions.admin),
   };
 }
