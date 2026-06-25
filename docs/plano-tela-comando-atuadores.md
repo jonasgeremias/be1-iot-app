@@ -452,4 +452,13 @@ Opção A (endpoint dedicado) implementada. Arquivos:
   claro o "aguardando" e nunca enfileira comandos.
 - **Acoplamento de tópico:** montagem do tópico **no backend** (não no app) para não vazar
   MQTT nem quebrar se a topologia mudar.
-```
+
+---
+
+## 14. TODO — dívidas temporárias a reverter no fim
+
+- [ ] **Restaurar proteção offline:** em `DeviceActuatorsScreen` há
+      `const FORCE_ONLINE = true;` (temporário, para testar a UI tratando o dispositivo sempre
+      como online). **Remover** essa flag e voltar a calcular
+      `offline = reading.kind === 'offline' || !actuators.link`, reabilitando o aviso
+      "Dispositivo offline" e o bloqueio do acionamento quando offline.

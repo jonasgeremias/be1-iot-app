@@ -62,8 +62,12 @@ export function DeviceActuatorsScreen() {
   const [seconds, setSeconds] = useState(10);
   const [heldIndex, setHeldIndex] = useState<number | null>(null);
 
+  // TODO(plano §14): FORCE_ONLINE é temporário — sempre trata como online para
+  // facilitar o teste da UI. Remover e restaurar a proteção offline (que
+  // desabilita o acionamento quando o dispositivo está offline).
+  const FORCE_ONLINE = true;
   const reading = getReadingStatus(lastFetch, device?.status);
-  const offline = reading.kind === 'offline' || !actuators.link;
+  const offline = FORCE_ONLINE ? false : reading.kind === 'offline' || !actuators.link;
   const baseEnabled = canControlActuators && !offline && !locked && !isPending;
 
   const isDisabled = useCallback(
@@ -186,8 +190,10 @@ export function DeviceActuatorsScreen() {
         ) : null}
 
         {isError ? <Notice tone="red">Falha ao enviar o comando. Tente novamente.</Notice> : null}
+      </YStack>
 
-        {/* painel COMANDO (ca.svg) com LEDs ao vivo + cadeado */}
+      {/* painel COMANDO (ca.svg) em largura cheia, com LEDs ao vivo + cadeado */}
+      <YStack px="$8" py="$12">
         <ActuatorSvgPanel
           cells={actuators.cells}
           locked={locked}
@@ -197,12 +203,14 @@ export function DeviceActuatorsScreen() {
           onSelect={setSelectedIndex}
           onToggleLock={() => setLocked((prev) => !prev)}
         />
+      </YStack>
 
+      <YStack px="$16" gap="$14">
         {/* seleção / modo / acionar */}
-        <Text fontSize={13} fontWeight="600" color="$text3">
+        <Text fontSize={13} fontWeight="600" color="$text2">
           {selectedIndex != null
-            ? `Atuador selecionado: ${selectedIndex}`
-            : 'Selecione um atuador para acionar.'}
+            ? `Atuador ${selectedIndex} selecionado · escolha o modo e toque em Acionar.`
+            : 'Toque em um atuador no painel para selecioná-lo; depois escolha o modo e toque em Acionar.'}
         </Text>
 
         <ActuatorModeBar

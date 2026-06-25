@@ -180,7 +180,7 @@ export function ActuatorSvgPanel({
                     width={btnD}
                     height={btnD}
                     br={btnR}
-                    borderWidth={2}
+                    borderWidth={3}
                     borderColor="$brand"
                   />
                 ) : null}
