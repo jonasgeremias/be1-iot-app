@@ -1,26 +1,33 @@
-import { useMemo, useState } from 'react';
+import { Droplet, Thermometer } from '@tamagui/lucide-icons';
+import { Fragment, useMemo, useState } from 'react';
 import { SvgCss } from 'react-native-svg/css';
-import { View } from 'tamagui';
+import { View, XStack } from 'tamagui';
 
 import { Card } from '@/shared/ui/Card';
 import { Text } from '@/shared/ui/Text';
 
 import { BLUEPRINT_SVG } from '../assets/blueprintSvg';
 import type { ChamberSnapshot } from '../schemas/device.schema';
+import {
+  ARROW_Y_NORM,
+  BP_ASPECT,
+  CHAMBER_ANCHORS,
+  chamberKeyForAnchor,
+} from '../utils/blueprintGeometry';
 import { chamberPalette, type TempScale } from '../utils/chamberPalette';
+import { SccArrowsStrip } from './SccArrowsStrip';
 
 /**
  * Planta do SCC — o `blueprint.svg` do firmware (`be1-bananapi`) renderizado com
- * `react-native-svg`, com as 8 câmaras recoloridas por temperatura. Reproduz o
- * `gui::components::blueprint`: injeta um `<style>` antes de `</defs>` com
- * `#chamberN .cf-fill/.cf-border/.cf-circle` por câmara (1..8). O retorno
- * (idx 9) fica na cor neutra do SVG, igual ao firmware.
+ * `react-native-svg`, reproduzindo o `gui::components::blueprint`:
+ * - 8 câmaras recoloridas por temperatura (via `<style>` injetado);
+ * - rótulos de temperatura (acima do divisor) e umidade (abaixo) por câmara +
+ *   retorno, sobrepostos nas âncoras do firmware;
+ * - setas de fluxo de ar por câmara (1..8) na faixa interna.
  */
 
-// viewBox do blueprint.svg.
-const BP_W = 20271.81;
-const BP_H = 21891.24;
-const BP_ASPECT = BP_W / BP_H;
+const DIM_COLOR = '#8A99AC';
+const HUMID_COLOR = '#335E7B'; // CHAMBER_HUMID do firmware.
 
 type Chambers = Record<string, ChamberSnapshot> | null | undefined;
 
@@ -36,6 +43,28 @@ function buildStyleBlock(chambers: Chambers, scale: TempScale): string {
   return s + '</style>';
 }
 
+/** Linha [ícone | valor], centrada — usada para temperatura e umidade. */
+function ValueRow({
+  Icon,
+  text,
+  color,
+  fontPx,
+}: {
+  Icon: typeof Thermometer;
+  text: string;
+  color: string;
+  fontPx: number;
+}) {
+  return (
+    <XStack ai="center" gap={Math.max(1, Math.round(fontPx * 0.18))}>
+      <Icon size={fontPx} color={color} />
+      <Text fontSize={fontPx} fontWeight="700" color={color} numberOfLines={1}>
+        {text}
+      </Text>
+    </XStack>
+  );
+}
+
 type Props = {
   chambers: Chambers;
   scale: TempScale;
@@ -43,9 +72,9 @@ type Props = {
 
 export function SccBlueprintCard({ chambers, scale }: Props) {
   const [width, setWidth] = useState(0);
+  const height = width / BP_ASPECT;
 
-  // Injeta o <style> dinâmico antes de </defs> (depois do style autoral, p/ vencer
-  // por igualdade de especificidade) — igual ao `inject_style` do firmware.
+  // Injeta o <style> dinâmico antes de </defs> (depois do autoral) — igual ao firmware.
   const xml = useMemo(() => {
     const block = buildStyleBlock(chambers, scale);
     const i = BLUEPRINT_SVG.indexOf('</defs>');
@@ -58,6 +87,9 @@ export function SccBlueprintCard({ chambers, scale }: Props) {
     [xml, width],
   );
 
+  const unit = scale === 'celsius' ? '°C' : '°F';
+  const baseFont = Math.max(8, Math.min(12, width * 0.028));
+
   return (
     <Card p="$14" gap="$10">
       <Text fontSize={13} fontWeight="800" color="$text2" letterSpacing={0.4}>
@@ -69,6 +101,84 @@ export function SccBlueprintCard({ chambers, scale }: Props) {
         onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       >
         {svg}
+
+        {width > 0
+          ? CHAMBER_ANCHORS.map((a, i) => {
+              const snap = chambers?.[chamberKeyForAnchor(i)];
+              const isRetorno = i === 8;
+              const font = isRetorno ? baseFont * 0.85 : baseFont;
+              const rowH = font * 1.35;
+              const gap = Math.max(2, width * 0.006);
+
+              const divX = a.divX * width;
+              const divY = a.divY * height;
+              const divW = a.divW * width;
+              const cx = divX + divW / 2;
+
+              const temp = snap?.temperature;
+              const humid = snap?.humidity;
+              const tempColor = temp != null ? chamberPalette(temp, scale).fg : DIM_COLOR;
+              const tempText = temp != null ? `${Math.round(temp)}${unit}` : '—';
+              const humidColor = humid != null ? HUMID_COLOR : DIM_COLOR;
+              const humidText = humid != null ? `${Math.round(humid)}%` : '—';
+
+              const arrows = snap?.arrows;
+              const showArrows = !isRetorno && arrows != null && arrows.length > 0;
+              const arrowScale = Math.max(0.3, Math.min(0.55, divW / 64));
+              const arrowH = 30 * arrowScale + 6;
+              const arrowW = divW * 1.7;
+              const arrowY = ARROW_Y_NORM[i]! * height;
+
+              return (
+                <Fragment key={chamberKeyForAnchor(i)}>
+                  {/* temperatura — acima do divisor */}
+                  <View
+                    position="absolute"
+                    left={divX}
+                    top={divY - rowH - gap}
+                    width={divW}
+                    height={rowH}
+                    ai="center"
+                    jc="flex-end"
+                  >
+                    <ValueRow Icon={Thermometer} text={tempText} color={tempColor} fontPx={font} />
+                  </View>
+
+                  {/* umidade — abaixo do divisor */}
+                  <View
+                    position="absolute"
+                    left={divX}
+                    top={divY + gap}
+                    width={divW}
+                    height={rowH}
+                    ai="center"
+                    jc="flex-start"
+                  >
+                    <ValueRow Icon={Droplet} text={humidText} color={humidColor} fontPx={font} />
+                  </View>
+
+                  {/* setas de fluxo (câmaras 1..8) */}
+                  {showArrows ? (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        left: cx - arrowW / 2,
+                        top: arrowY - arrowH / 2,
+                        width: arrowW,
+                        height: arrowH,
+                      }}
+                    >
+                      <SccArrowsStrip
+                        arrows={arrows}
+                        scale={arrowScale}
+                        row={i >= 4 ? 'top' : 'bottom'}
+                      />
+                    </View>
+                  ) : null}
+                </Fragment>
+              );
+            })
+          : null}
       </View>
     </Card>
   );
