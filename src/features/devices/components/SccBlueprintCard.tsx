@@ -88,7 +88,9 @@ export function SccBlueprintCard({ chambers, scale }: Props) {
   );
 
   const unit = scale === 'celsius' ? '°C' : '°F';
-  const baseFont = Math.max(8, Math.min(12, width * 0.028));
+  // Câmaras 1..8 com fonte maior; retorno menor (como no firmware).
+  const chamberFont = Math.max(11, Math.min(17, width * 0.042));
+  const retornoFont = Math.max(8, Math.min(12, width * 0.028));
 
   return (
     <Card p="$14" gap="$10">
@@ -106,7 +108,7 @@ export function SccBlueprintCard({ chambers, scale }: Props) {
           ? CHAMBER_ANCHORS.map((a, i) => {
               const snap = chambers?.[chamberKeyForAnchor(i)];
               const isRetorno = i === 8;
-              const font = isRetorno ? baseFont * 0.85 : baseFont;
+              const font = isRetorno ? retornoFont : chamberFont;
               const rowH = font * 1.35;
               const gap = Math.max(2, width * 0.006);
 
@@ -124,9 +126,9 @@ export function SccBlueprintCard({ chambers, scale }: Props) {
 
               const arrows = snap?.arrows;
               const showArrows = !isRetorno && arrows != null && arrows.length > 0;
-              const arrowScale = Math.max(0.3, Math.min(0.55, divW / 64));
+              const arrowScale = Math.max(0.5, Math.min(0.9, divW / 44));
               const arrowH = 30 * arrowScale + 6;
-              const arrowW = divW * 1.7;
+              const arrowW = divW * 2;
               const arrowY = ARROW_Y_NORM[i]! * height;
 
               return (
