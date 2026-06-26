@@ -18,7 +18,7 @@ import { ActuatorSvgPanel } from '../components/ActuatorSvgPanel';
 import { useActuatorCommand } from '../hooks/useActuatorCommand';
 import { useDeviceActuators } from '../hooks/useDeviceActuators';
 import { useIotDevice } from '../hooks/useIotDevice';
-import { ACTUATOR_COLORS, type ActuatorCommand } from '../utils/actuatorState';
+import { ACTUATOR_COLORS, actuatorLabel, type ActuatorCommand } from '../utils/actuatorState';
 import { formatMac, getReadingStatus, getStatusLabel } from '../utils/iotConstants';
 
 /** Faixa de aviso (leitura/offline/bloqueio) — texto curto em caixa tonalizada. */
@@ -209,7 +209,7 @@ export function DeviceActuatorsScreen() {
         {/* seleção / modo / acionar */}
         <Text fontSize={13} fontWeight="600" color="$text2">
           {selectedIndex != null
-            ? `Atuador ${selectedIndex} selecionado · escolha o modo e toque em Acionar.`
+            ? `Atuador ${actuatorLabel(selectedIndex)} selecionado · escolha o modo e toque em Acionar.`
             : 'Toque em um atuador no painel para selecioná-lo; depois escolha o modo e toque em Acionar.'}
         </Text>
 
@@ -233,7 +233,7 @@ export function DeviceActuatorsScreen() {
             onPress={canStop ? handleStop : undefined}
             accessibilityLabel="Parar atuador"
           >
-            {`Parar (atuador ${heldIndex})`}
+            {`Parar (atuador ${actuatorLabel(heldIndex)})`}
           </Button>
         ) : null}
       </YStack>

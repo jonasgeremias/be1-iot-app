@@ -12,7 +12,12 @@ import Animated, {
 import { View } from 'tamagui';
 
 import { CA_SVG } from '../assets/caSvg';
-import { ACTUATOR_COLORS, type ActuatorCell, type LedMode } from '../utils/actuatorState';
+import {
+  ACTUATOR_COLORS,
+  actuatorLabel,
+  type ActuatorCell,
+  type LedMode,
+} from '../utils/actuatorState';
 
 /**
  * Painel COMANDO renderizado a partir do `ca.svg` do firmware (`be1-bananapi`),
@@ -201,7 +206,7 @@ export function ActuatorSvgPanel({
                   cursor={disabled ? 'default' : 'pointer'}
                   accessibilityRole="button"
                   accessibilityState={{ selected, disabled }}
-                  accessibilityLabel={`Atuador ${cell.index}`}
+                  accessibilityLabel={`Atuador ${actuatorLabel(cell.index)}`}
                 />
               </Fragment>
             );

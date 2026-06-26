@@ -72,6 +72,17 @@ export function actuatorStateLabel(code: number): string {
   return STATE_LABELS[code] ?? 'Indisponível';
 }
 
+/**
+ * Rótulo do atuador por fileira: o índice de fio 1..16 vira "N Quente" (1..8) ou
+ * "N Retorno" (9..16 → 1..8). O fio (`index`) é o que vai no payload; o rótulo é
+ * só para exibição, igual à numeração 1..8 desenhada em cada fileira do painel.
+ */
+export function actuatorLabel(index: number): string {
+  const isReturn = index > 8;
+  const n = isReturn ? index - 8 : index;
+  return `${n} ${isReturn ? 'Retorno' : 'Quente'}`;
+}
+
 /** Mapeia um código de estado para o comportamento dos LEDs (verde, vermelho). */
 export function ledModes(code: number): { green: LedMode; red: LedMode } {
   switch (code) {
